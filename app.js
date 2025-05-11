@@ -4,11 +4,24 @@ const express = require('express')
 const app = express()
 const port = 3000
 
+
 // config
 app.use(express.json());
 
+// background cleanup (this run every 1 minute)
+setInterval(() => {
+  console.log("background session run");
+  console.log(eatSession);
+  const now = Date.now();
+  for (const [username, session] of eatSession.entries()) {
+    if (now - session.lastFetch > 10 * 60 * 1000) {
+      eatSession.delete(username); // remove if there is no activity after 10 minutes
+      console.log(`Session for ${username} has been removed due to inactivity.`);
+    }
+  }
+}, 60 * 1000)
 
-
+const eatSession = new Map(); // key: username, value: { foodDeclined: [], lastRecommended: "", lastFetch: Date }
 
 async function run(model, input) {
   try {
@@ -56,13 +69,13 @@ async function insertVector(indexName, vectors) {
 
 function getFoodHistory(username) {
   const foodData = {
-    "jack": ["Banana, Waffles"],
-    "lucy": ["Ice Cream, Pistachio"],
-    "jamal": ["Fried Chicken, KFC"]
+    "jack": ["Batagor, ketoprak"],
+    "lucy": ["es teler, mie ayam"],
+    "jamal": ["pempek, siomay"]
   }
 
   username = username.toLowerCase();
-  return foodData[username] || "None";
+  return foodData[username] || ["None"];
 
 }
 
@@ -75,13 +88,38 @@ app.post('/', async (req, res) => {
   try {
     const location = req.body.location;
     const username = req.body.username;
+
+    // get time
+    const now = Date.now();
+
+    // create session
+    if (!eatSession.has(username)) {
+      eatSession.set(username, {
+        foodDeclined: [],
+        lastRecommended: "",
+        lastFetch: now
+      })
+    } else {
+      const session = eatSession.get(username);
+      session.foodDeclined.push(session.lastRecommended);
+      session.lastFetch = now
+    }
     
-    const foodHistory = getFoodHistory(username).join(", ");
-    const model = "@cf/meta/llama-3.1-8b-instruct-fast";
+    let foodHistory = getFoodHistory(username)
+    let sessionData = eatSession.get(username);
+    let foodDeclined = sessionData.foodDeclined;
+    console.log(foodHistory);
+    foodHistory = (foodHistory.length >= 2) ? foodHistory.join(", "): foodHistory;
+    foodDeclined = (foodDeclined.length >=2) ? foodDeclined.join(", "): foodDeclined;
+    const model = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
     const systemPrompt = `
-    -Extract data about foods in a country (5 foods only) to be recommended to user
-    -use user food history to get what user preferences for what kinds of food
-    -User food history: ${foodHistory}
+    -Recommend 1 food in a country to be recommended to user
+    -Use user food preferences to get gist of what the user likes and recommend food similar to it
+    -You can also recommend food from the user preferences 
+    -User food preferences: ${foodHistory}
+    -Food that user declined: ${foodDeclined}
+    -Do not recommend foods that user declined
+
     `
     const mess = {
     "messages": [
@@ -94,12 +132,29 @@ app.post('/', async (req, res) => {
         "content": `Tell me what to eat in ${location}`
         }
     ],
-    
+    "response_format": {
+    "type": "json_schema",
+    "json_schema": {
+      "type": "object",
+      "properties": {
+        "Location": "string",
+        "Food": "string"
+      },
+      "required": [
+        "Location",
+        "Food"
+      ]
+    }
+    }
     };
 
     
     await run(model, mess).then((response) => {
-        res.send(response);
+      const food = response.result.response.Food;
+
+      sessionData.lastRecommended = food;
+
+      res.send(response.result.response.Food);
     });
   } catch (error) {
     res.status(404).json({ message: error.message });
