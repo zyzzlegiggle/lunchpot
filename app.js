@@ -3,10 +3,14 @@ let dotenv = require('dotenv').config()
 const express = require('express')
 const app = express()
 const port = 3000
-
+const cors = require('cors')
 
 // config
 app.use(express.json());
+let corsOptions = {
+   origin : ['http://localhost:4200/'],
+}
+app.use(cors());
 
 // background cleanup (this run every 1 minute)
 setInterval(() => {
@@ -69,7 +73,7 @@ async function insertVector(indexName, vectors) {
 
 function getFoodHistory(username) {
   const foodData = {
-    "jack": ["Batagor, ketoprak"],
+    "jack": ["ayam goreng"],
     "lucy": ["es teler, mie ayam"],
     "jamal": ["pempek, siomay"]
   }
@@ -78,6 +82,47 @@ function getFoodHistory(username) {
   return foodData[username] || ["None"];
 
 }
+
+async function getRestaurant(food, location) {
+  try {
+    const apiKey = process.env.GOOGLE_API_KEY_PLACES;
+    const country = location.country;
+    const city = location.city;
+    const latitude = location.latitude;
+    const longitude = location.longitude;
+    console.log(location);
+    const body = {
+      textQuery: `${food} restaurants`,
+      maxResultCount: 5,
+      locationBias: {
+        circle: {
+          center: { latitude, longitude },
+          radius: 1 * 1000.0 // 1 km radius
+        }
+      }
+    };
+    console.log(body);
+    const response = await fetch(
+    `https://places.googleapis.com/v1/places:searchText`,
+    {
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'places.displayName,places.formattedAddress'
+      },
+      method: "POST",
+      body: JSON.stringify(body),
+      
+    }
+  );
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (e) {
+    res.status(404).json({ message: error.message });
+  }
+}
+
 
 
   
@@ -88,7 +133,6 @@ app.post('/', async (req, res) => {
   try {
     const location = req.body.location;
     const username = req.body.username;
-
     // get time
     const now = Date.now();
 
@@ -114,9 +158,9 @@ app.post('/', async (req, res) => {
     const model = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
     const systemPrompt = `
     -Recommend 1 food in a country to be recommended to user
-    -Use user food preferences to get gist of what the user likes and recommend food similar to it
-    -You can also recommend food from the user preferences 
-    -User food preferences: ${foodHistory}
+    -You can also recommend food from the user food history
+    -You can recommend a popular brand that is in that country (e.g. KFC)
+    -User food history: ${foodHistory}
     -Food that user declined: ${foodDeclined}
     -Do not recommend foods that user declined
 
@@ -129,7 +173,7 @@ app.post('/', async (req, res) => {
         },
         {
         "role": "user",
-        "content": `Tell me what to eat in ${location}`
+        "content": `Tell me what to eat in ${location.city},${location.country}`
         }
     ],
     "response_format": {
@@ -149,18 +193,25 @@ app.post('/', async (req, res) => {
     };
 
     
-    await run(model, mess).then((response) => {
-      const food = response.result.response.Food;
-
-      sessionData.lastRecommended = food;
-
-      res.send(response.result.response.Food);
-    });
+    const response = await run(model, mess);
+    const food = response.result.response.Food;
+    // only get 3 words from the output to make sure it only gets food
+    if (food.trim().split(/\s+/).length > 3) {
+      food = food.trim().split(/\s+/).slice(0, 3).join(' ');
+    }
+    const foodLocation = response.result.response.Location;
+    sessionData.lastRecommended = food;
+    const output = {
+      "Food": food
+    }
+    res.send(await getRestaurant(food, location));
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
     
 })
+
+
 
 app.post('/createindex', async (req, res) => {
     try {
