@@ -83,6 +83,25 @@ function getFoodHistory(username) {
 
 }
 
+async function getFoodImage(food){
+  try {
+    const apiKey = process.env.GOOGLE_API_KEY_CUSTOMSEARCH;
+    const engineID = process.env.GOOGLE_ENGINE_ID
+    console.log("getfoodimage");
+    const response = await fetch(
+    `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${engineID}&q=${food}&searchType=image`,
+    {
+      method: "GET"
+    }
+  );
+    const result = await response.json();
+    console.log(result);
+    return result;
+  } catch (e) {
+    throw new Error(e.message);
+  }
+}
+
 async function getRestaurant(food, location) {
   try {
     const apiKey = process.env.GOOGLE_API_KEY_PLACES;
@@ -119,7 +138,7 @@ async function getRestaurant(food, location) {
     console.log(result);
     return result;
   } catch (e) {
-    res.status(404).json({ message: error.message });
+    throw new Error(e.message);
   }
 }
 
@@ -127,7 +146,14 @@ async function getRestaurant(food, location) {
 
   
   
-  
+app.get("/food", async (req, res) => {
+  try {
+    const output = await getFoodImage("Fried Chicken")
+    res.send(output);
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+})
 
 app.post('/', async (req, res) => {
   try {
@@ -202,9 +228,9 @@ app.post('/', async (req, res) => {
     const foodLocation = response.result.response.Location;
     sessionData.lastRecommended = food;
     const output = {
-      "Food": food
+      "food": food
     }
-    res.send(await getRestaurant(food, location));
+    res.send(output);
   } catch (error) {
     res.status(404).json({ message: error.message });
   }

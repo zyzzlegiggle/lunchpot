@@ -1,0 +1,11 @@
+<div>
+    <h1>What to Eat</h1>
+    <button (click)="onClick()">
+        <span *ngIf="!isLoading && !foodSelected">What To Eat</span>
+        <div *ngIf="isLoading" class="loading"></div>
+        <div *ngIf="foodSelected && !isLoading" class="food-content">
+            <img [src]="selectedFood.image" alt="Food image">
+            <span class="food-name">{{selectedFood.name}}</span>
+        </div>
+    </button>
+</div>
