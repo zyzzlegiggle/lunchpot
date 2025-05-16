@@ -1,6 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-
+import { FoodData } from 'src/app/interfaces/food-data';
+import { LocationData } from 'src/app/interfaces/location-data';
+import { RestaurantData } from 'src/app/interfaces/restaurant-data';
+import { ApiService } from 'src/app/services/api/api.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -8,15 +11,18 @@ import { Component, OnInit } from '@angular/core';
   imports: [CommonModule]
 })
 export class HomeComponent  implements OnInit {
-  selectedFood: {name: string, image: string} = {name: '', image: ''};
+  selectedFood: FoodData = {name:'', imageLink:''};
   isLoading: boolean = false;
   foodSelected: boolean = false;
-  latitude: string='';
-  longitude:string='';
-  country:string='';
-  city:string='';
+  location: LocationData = {
+    country:'',
+    city:'',
+    latitude:'',
+    longitude:''
+  };
+  restaurants: RestaurantData[] = [];
 
-  constructor() { }
+  constructor(private apiService: ApiService) { }
 
   ngOnInit() {}
 
@@ -26,46 +32,11 @@ export class HomeComponent  implements OnInit {
   
       this.isLoading = true;
 
-      const position = await this.getCurrentPosition();
-      this.latitude = position.coords.latitude.toString();
-      this.longitude = position.coords.longitude.toString();
-      await fetch('https://ipapi.co/json/')
-        .then(response => response.json())
-        .then(data => {
-          this.country = data.country_name;
-          this.city = data.city;
-        })
-        .catch(error => {
-          console.error("Error fetching geolocation:", error);
-      });
-
-      const body = {
-        "location": {
-          "country": this.country,
-          "city": this.city,
-          "latitude": this.latitude,
-          "longitude": this.longitude
-        },
-        "username": "jamal"
-      }
-      console.log(body);
+      this.location = await this.apiService.getLocation();
       
-      const output = await fetch(`http://localhost:3000/`, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-      })
-      if (!output.ok) {
-        throw new Error('Network response was not ok');
-      }
-
-      const data = await output.json();
-      this.selectedFood.name = data.food;
-      console.log(this.selectedFood.name);
+      const data = await this.apiService.getFood("jamal", this.location.city, this.location.country)
+      this.selectedFood = data;
       
-
     } catch (e: any) {
       console.error(`Error on fetching food data:${e.message}`)
       this.selectedFood.name = "Error";
@@ -74,17 +45,37 @@ export class HomeComponent  implements OnInit {
       this.foodSelected = true;
     }
   } 
+
   resetButton() {
-    this.foodSelected = false;
+    this.resetState();
   }
-  private getCurrentPosition(): Promise<GeolocationPosition> {
-    return new Promise((resolve, reject) => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      } else {
-        reject(new Error('Geolocation not supported'));
+
+  public async findRestaurants() {
+    try {
+      if (!this.foodSelected || !this.selectedFood.name || !this.location.latitude || !this.location.longitude) {
+      return;
       }
-    });
+
+      this.isLoading = true;
+
+      this.restaurants = await this.apiService.getRestaurant(this.selectedFood.name, this.location.latitude, this.location.longitude);
+
+      console.log(this.restaurants);
+    } catch (e: any) {
+      console.error(e.message);
+      alert('Could not find restaurants. Please try again later.');
+    } finally {
+      this.isLoading = false;
+    }
+
+
+  }
+
+  
+  resetState() {
+    this.foodSelected = false;
+    this.restaurants = [];
+    this.selectedFood = { name: '', imageLink: '' };
   }
 
 }

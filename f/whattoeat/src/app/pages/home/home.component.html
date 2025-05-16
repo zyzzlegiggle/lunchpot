@@ -1,11 +1,38 @@
-<div>
+<div class="container">
     <h1>What to Eat</h1>
-    <button (click)="onClick()">
-        <span *ngIf="!isLoading && !foodSelected">What To Eat</span>
-        <div *ngIf="isLoading" class="loading"></div>
-        <div *ngIf="foodSelected && !isLoading" class="food-content">
-            <img [src]="selectedFood.image" alt="Food image">
-            <span class="food-name">{{selectedFood.name}}</span>
+    
+    <div class="button-container">
+        <button class="food-button" (click)="onClick()" [class.selected]="foodSelected">
+            <span *ngIf="!isLoading && !foodSelected" class="initial-text">What To Eat</span>
+            
+            <div *ngIf="isLoading" class="loading"></div>
+            
+            <div *ngIf="foodSelected && !isLoading" class="food-content">
+                <img [src]="selectedFood.imageLink || '/api/placeholder/100/100'" alt="Food image">
+                <span class="food-name">{{selectedFood.name}}</span>
+            </div>
+        </button>
+        
+        <div *ngIf="foodSelected && !isLoading" class="actions">
+            <button class="action-button find-restaurant" (click)="findRestaurants()">
+                <span>Find Restaurants</span>
+            </button>
+            <button class="action-button try-again" (click)="resetButton()">
+                <span>Try Again</span>
+            </button>
         </div>
-    </button>
+        
+        <div *ngIf="restaurants.length > 0" class="restaurants-container">
+            <h2>Nearby Restaurants</h2>
+            <div class="restaurant-list">
+                <div *ngFor="let restaurant of restaurants" class="restaurant-card">
+                    <h3>{{restaurant.name}}</h3>
+                    <a  
+                       [href]="'https://www.google.com/maps/place/?q=place_id:' + restaurant.placeId" 
+                       target="_blank" 
+                       class="view-button">View on Maps</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

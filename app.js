@@ -95,8 +95,7 @@ async function getFoodImage(food){
     }
   );
     const result = await response.json();
-    console.log(result);
-    return result;
+    return result.items[Math.floor(Math.random() * result.items.length - 1)].link;
   } catch (e) {
     throw new Error(e.message);
   }
@@ -104,38 +103,7 @@ async function getFoodImage(food){
 
 async function getRestaurant(food, location) {
   try {
-    const apiKey = process.env.GOOGLE_API_KEY_PLACES;
-    const country = location.country;
-    const city = location.city;
-    const latitude = location.latitude;
-    const longitude = location.longitude;
-    console.log(location);
-    const body = {
-      textQuery: `${food} restaurants`,
-      maxResultCount: 5,
-      locationBias: {
-        circle: {
-          center: { latitude, longitude },
-          radius: 1 * 1000.0 // 1 km radius
-        }
-      }
-    };
-    console.log(body);
-    const response = await fetch(
-    `https://places.googleapis.com/v1/places:searchText`,
-    {
-      headers: { 
-        'Content-Type': 'application/json',
-        'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'places.displayName,places.formattedAddress'
-      },
-      method: "POST",
-      body: JSON.stringify(body),
-      
-    }
-  );
-    const result = await response.json();
-    console.log(result);
+    
     return result;
   } catch (e) {
     throw new Error(e.message);
@@ -149,7 +117,10 @@ async function getRestaurant(food, location) {
 app.get("/food", async (req, res) => {
   try {
     const output = await getFoodImage("Fried Chicken")
-    res.send(output);
+    const body = {
+      imageLink: output
+    }
+    res.send(body);
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
@@ -225,10 +196,12 @@ app.post('/', async (req, res) => {
     if (food.trim().split(/\s+/).length > 3) {
       food = food.trim().split(/\s+/).slice(0, 3).join(' ');
     }
-    const foodLocation = response.result.response.Location;
     sessionData.lastRecommended = food;
+
+    const imageLink = await getFoodImage(food);
     const output = {
-      "food": food
+      food: food,
+      imageLink: imageLink
     }
     res.send(output);
   } catch (error) {
@@ -237,6 +210,49 @@ app.post('/', async (req, res) => {
     
 })
 
+
+app.post('/restaurants', async (req, res) => {
+  try {
+    const apiKey = process.env.GOOGLE_API_KEY_PLACES;
+    const latitude = req.body.location.latitude;
+    const longitude = req.body.location.longitude;
+    const food = req.body.food;
+    const body = {
+      textQuery: `${food} restaurants`,
+      maxResultCount: 5,
+      locationBias: {
+        circle: {
+          center: { latitude, longitude },
+          radius: 2 * 1000.0 // 2 km radius
+        }
+      },
+      openNow: true,
+      rankPreference: "RELEVANCE"
+    };
+    console.log(body);
+    const response = await fetch(
+    `https://places.googleapis.com/v1/places:searchText`,
+    {
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Goog-Api-Key': apiKey,
+        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress'
+      },
+      method: "POST",
+      body: JSON.stringify(body),
+      
+    }
+  );
+    const result = await response.json();
+    // get photo
+    
+    console.log(result);
+    res.send(result);
+  } catch (error) {
+    res.status(404).json({ message: error.message });
+  }
+    
+})
 
 
 app.post('/createindex', async (req, res) => {

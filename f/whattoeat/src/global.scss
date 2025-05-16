@@ -35,3 +35,14 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+// root must be put here
+:root {
+  --primary-color: #ff6b6b;
+  --primary-dark: #e95f5f;
+  --accent-color: #4ecdc4;
+  --text-color: #333;
+  --light-bg: #f9f9f9;
+  --shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
