@@ -236,7 +236,7 @@ app.post('/restaurants', async (req, res) => {
       headers: { 
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress'
+        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.photos'
       },
       method: "POST",
       body: JSON.stringify(body),
@@ -244,9 +244,23 @@ app.post('/restaurants', async (req, res) => {
     }
   );
     const result = await response.json();
-    // get photo
+
+    console.log(result)
+    for (let i = 0; i < result.places.length; i++) {
+      const photo = await fetch(
+        `https://places.googleapis.com/v1/${result.places[i].photos[0].name}/media?key=${apiKey}&maxHeightPx=400&maxWidthPx=400&skipHttpRedirect=true`,
+        {
+          method: "GET",
+        }
+      );
+      const photoData = await photo.json();
+      console.log(photoData);
+      result.places[i].photoLink = photoData.photoUri;
+      // delete photos array containing photo data (not link)
+      delete result.places[i].photos; // replace 'unwantedKey' with the actual property name
+    }
+    console.log(result)
     
-    console.log(result);
     res.send(result);
   } catch (error) {
     res.status(404).json({ message: error.message });
