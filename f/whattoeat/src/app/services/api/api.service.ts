@@ -90,7 +90,8 @@ export class ApiService {
       const restaurants: RestaurantData[] = []
       console.log(restaurantData);
       restaurantData.places.forEach((data: any) => {
-        restaurants.push({name: data.displayName.text, address: data.formattedAddress, placeId: data.id});
+        restaurants.push({name: data.displayName.text, address: data.formattedAddress, 
+          placeId: data.id, photoLink: data.photoLink});
       })
       return restaurants;
     } catch (e: any) {

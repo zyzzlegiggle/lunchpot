@@ -39,10 +39,31 @@
 // root must be put here
 :root {
   --primary-color: #ff6b6b;
-  --primary-dark: #e95f5f;
+  --primary-light: #ff9b9b;
+  --primary-dark: #e05050;
   --accent-color: #4ecdc4;
-  --text-color: #333;
-  --light-bg: #f9f9f9;
-  --shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  --hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  --accent-dark: #3dafa7;
+  --text-color: #2d3436;
+  --text-light: #636e72;
+  --background-color: #f7f9fc;
+  --card-background: #ffffff;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --hover-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  --border-radius: 16px;
+  --button-radius: 50px;
+  --transition-speed: 0.3s;
+}
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
 }

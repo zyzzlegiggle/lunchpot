@@ -1,14 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { addIcons } from 'ionicons';
 import { FoodData } from 'src/app/interfaces/food-data';
 import { LocationData } from 'src/app/interfaces/location-data';
 import { RestaurantData } from 'src/app/interfaces/restaurant-data';
 import { ApiService } from 'src/app/services/api/api.service';
+import { locationOutline, mapOutline, refreshOutline, restaurantOutline } from 'ionicons/icons';
+import { IonIcon } from '@ionic/angular/standalone';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  imports: [CommonModule]
+  imports: [CommonModule, IonIcon]
 })
 export class HomeComponent  implements OnInit {
   selectedFood: FoodData = {name:'', imageLink:''};
@@ -22,7 +25,9 @@ export class HomeComponent  implements OnInit {
   };
   restaurants: RestaurantData[] = [];
 
-  constructor(private apiService: ApiService) { }
+  constructor(private apiService: ApiService) {
+    addIcons({mapOutline, restaurantOutline, locationOutline, refreshOutline})
+   }
 
   ngOnInit() {}
 
@@ -71,11 +76,16 @@ export class HomeComponent  implements OnInit {
 
   }
 
+  handleImageError(event: any): void {
+  event.target.src = this.selectedFood.imageLink;
+  }
   
   resetState() {
     this.foodSelected = false;
     this.restaurants = [];
     this.selectedFood = { name: '', imageLink: '' };
   }
+
+
 
 }

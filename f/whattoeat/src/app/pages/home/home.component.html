@@ -1,38 +1,72 @@
-<div class="container">
+<div class="page-container">
+  <div class="app-header">
     <h1>What to Eat</h1>
-    
-    <div class="button-container">
-        <button class="food-button" (click)="onClick()" [class.selected]="foodSelected">
-            <span *ngIf="!isLoading && !foodSelected" class="initial-text">What To Eat</span>
-            
-            <div *ngIf="isLoading" class="loading"></div>
-            
-            <div *ngIf="foodSelected && !isLoading" class="food-content">
-                <img [src]="selectedFood.imageLink || '/api/placeholder/100/100'" alt="Food image">
-                <span class="food-name">{{selectedFood.name}}</span>
-            </div>
+    <p class="tagline">Discover your next delicious meal</p>
+  </div>
+  
+  <div class="content-container">
+    <div class="main-action-area">
+      <button class="food-button pulse-animation" (click)="onClick()" [class.selected]="foodSelected">
+        <span *ngIf="!isLoading && !foodSelected" class="initial-text">
+          <ion-icon name="restaurant-outline"></ion-icon>
+          <span>Find Food</span>
+        </span>
+        
+        <div *ngIf="isLoading" class="loading-container">
+          <div class="loading-spinner"></div>
+          <span class="loading-text">Finding deliciousness...</span>
+        </div>
+        
+        <div *ngIf="foodSelected && !isLoading" class="food-content">
+          <div class="food-image-container">
+            <img [src]="selectedFood.imageLink || '/api/placeholder/100/100'" alt="Food image">
+          </div>
+          <span class="food-name">{{selectedFood.name}}</span>
+        </div>
+      </button>
+      
+      <div *ngIf="foodSelected && !isLoading" class="actions">
+        <button class="action-button find-restaurant" (click)="findRestaurants()">
+          <ion-icon name="location-outline"></ion-icon>
+          <span>Find Restaurants</span>
         </button>
-        
-        <div *ngIf="foodSelected && !isLoading" class="actions">
-            <button class="action-button find-restaurant" (click)="findRestaurants()">
-                <span>Find Restaurants</span>
-            </button>
-            <button class="action-button try-again" (click)="resetButton()">
-                <span>Try Again</span>
-            </button>
-        </div>
-        
-        <div *ngIf="restaurants.length > 0" class="restaurants-container">
-            <h2>Nearby Restaurants</h2>
-            <div class="restaurant-list">
-                <div *ngFor="let restaurant of restaurants" class="restaurant-card">
-                    <h3>{{restaurant.name}}</h3>
-                    <a  
-                       [href]="'https://www.google.com/maps/place/?q=place_id:' + restaurant.placeId" 
-                       target="_blank" 
-                       class="view-button">View on Maps</a>
-                </div>
-            </div>
-        </div>
+        <button class="action-button try-again" (click)="resetButton()">
+          <ion-icon name="refresh-outline"></ion-icon>
+          <span>Try Again</span>
+        </button>
+      </div>
     </div>
+    
+    <div *ngIf="restaurants.length > 0" class="restaurants-section">
+      <h2>Nearby Restaurants</h2>
+      <div class="restaurant-list">
+        <div *ngFor="let restaurant of restaurants" class="restaurant-card">
+          <div class="restaurant-image">
+            <img [src]="restaurant.photoLink || selectedFood.imageLink" 
+            alt="{{restaurant.name}}"
+            (error)="handleImageError($event)"
+            >
+          </div>
+          <div class="restaurant-details">
+            <h3>{{restaurant.name}}</h3>
+            <!-- <div *ngIf="restaurant.rating" class="rating">
+              <div class="stars">
+                <ion-icon *ngFor="let star of [1,2,3,4,5]" 
+                          [name]="star <= restaurant.rating ? 'star' : (star - 0.5 <= restaurant.rating ? 'star-half' : 'star-outline')">
+                </ion-icon>
+              </div>
+              <span class="rating-number">{{restaurant.rating}}</span>
+            </div> -->
+            <a [href]="'https://www.google.com/maps/place/?q=place_id:' + restaurant.placeId" 
+               target="_blank" 
+               class="view-button">
+              <ion-icon name="map-outline"></ion-icon>
+              View on Maps
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
