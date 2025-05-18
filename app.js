@@ -87,7 +87,6 @@ async function getFoodImage(food){
   try {
     const apiKey = process.env.GOOGLE_API_KEY_CUSTOMSEARCH;
     const engineID = process.env.GOOGLE_ENGINE_ID
-    console.log("getfoodimage");
     const response = await fetch(
     `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${engineID}&q=${food}&searchType=image`,
     {
@@ -149,7 +148,6 @@ app.post('/', async (req, res) => {
     let foodHistory = getFoodHistory(username)
     let sessionData = eatSession.get(username);
     let foodDeclined = sessionData.foodDeclined;
-    console.log(foodHistory);
     foodHistory = (foodHistory.length >= 2) ? foodHistory.join(", "): foodHistory;
     foodDeclined = (foodDeclined.length >=2) ? foodDeclined.join(", "): foodDeclined;
     const model = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
@@ -229,7 +227,6 @@ app.post('/restaurants', async (req, res) => {
       openNow: true,
       rankPreference: "RELEVANCE"
     };
-    console.log(body);
     const response = await fetch(
     `https://places.googleapis.com/v1/places:searchText`,
     {
@@ -245,7 +242,6 @@ app.post('/restaurants', async (req, res) => {
   );
     const result = await response.json();
 
-    console.log(result)
     for (let i = 0; i < result.places.length; i++) {
       const photo = await fetch(
         `https://places.googleapis.com/v1/${result.places[i].photos[0].name}/media?key=${apiKey}&maxHeightPx=400&maxWidthPx=400&skipHttpRedirect=true`,
@@ -254,12 +250,10 @@ app.post('/restaurants', async (req, res) => {
         }
       );
       const photoData = await photo.json();
-      console.log(photoData);
       result.places[i].photoLink = photoData.photoUri;
       // delete photos array containing photo data (not link)
       delete result.places[i].photos; // replace 'unwantedKey' with the actual property name
     }
-    console.log(result)
     
     res.send(result);
   } catch (error) {

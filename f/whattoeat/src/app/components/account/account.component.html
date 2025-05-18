@@ -1,0 +1,107 @@
+<div class="account-section">
+        <!-- Show when user is NOT logged in -->
+        <div *ngIf="!isLoggedIn" class="auth-buttons">
+           <button (click)="openLoginModal()" class="auth-button login-button">
+              <ion-icon name="log-in-outline"></ion-icon>
+              Login
+            </button>
+        </div>
+        
+        <!-- Show when user IS logged in -->
+        <div *ngIf="isLoggedIn" class="user-profile">
+          <div class="profile-info" (click)="toggleUserMenu()">
+            <span class="user-name">{{userName || 'User'}}</span>
+            <div class="avatar-container">
+              <img [src]="userPhotoUrl || '/api/placeholder/40/40'" alt="Profile photo">
+            </div>
+            <ion-icon name="chevron-down-outline" class="dropdown-icon"></ion-icon>
+          </div>
+          
+          <!-- Dropdown menu -->
+          <div *ngIf="showUserMenu" class="user-dropdown">
+            <ul class="dropdown-menu">
+              <li>
+                <a href="#" class="dropdown-item">
+                  <ion-icon name="person-outline"></ion-icon>
+                  <span>My Profile</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="dropdown-item">
+                  <ion-icon name="bookmark-outline"></ion-icon>
+                  <span>Saved Foods</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="dropdown-item">
+                  <ion-icon name="settings-outline"></ion-icon>
+                  <span>Settings</span>
+                </a>
+              </li>
+              <li class="divider"></li>
+              <li>
+                <button class="dropdown-item logout-button">
+                  <ion-icon name="log-out-outline"></ion-icon>
+                  <span>Sign Out</span>
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+<div class="auth-modal" [ngClass]="{'show': showAuthModal}">
+    <div class="auth-modal-content">
+      <button class="close-button" (click)="closeLoginModal()">×</button>
+      
+      <div class="auth-tabs">
+        <div class="auth-tab" [ngClass]="{'active': activeTab === 'login'}" (click)="switchTab('login')">Login</div>
+        <div class="auth-tab" [ngClass]="{'active': activeTab === 'signup'}" (click)="switchTab('signup')">Sign Up</div>
+      </div>
+      
+      <div class="auth-form-container">
+        <!-- Login Form -->
+        <form class="auth-form" [ngClass]="{'show': activeTab === 'login'}" (ngSubmit)="login()">
+          <div class="form-group">
+            <label for="login-email">Email</label>
+            <input type="email" id="login-email" class="form-control" [(ngModel)]="loginData.email" name="email" required placeholder="Enter your email">
+          </div>
+          
+          <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" class="form-control" [(ngModel)]="loginData.password" name="password" required placeholder="Enter your password">
+          </div>
+          
+          <button type="submit" class="submit-button">Login</button>
+          
+          <div class="auth-footer">
+            Don't have an account? <span class="auth-link" (click)="switchTab('signup')">Sign up here</span>
+          </div>
+        </form>
+        
+        <!-- Signup Form -->
+        <form class="auth-form" [ngClass]="{'show': activeTab === 'signup'}" (ngSubmit)="signup()">
+          <div class="form-group">
+            <label for="signup-name">Full Name</label>
+            <input type="text" id="signup-name" class="form-control" [(ngModel)]="signupData.name" name="name" required placeholder="Enter your full name">
+          </div>
+          
+          <div class="form-group">
+            <label for="signup-email">Email</label>
+            <input type="email" id="signup-email" class="form-control" [(ngModel)]="signupData.email" name="email" required placeholder="Enter your email">
+          </div>
+          
+          <div class="form-group">
+            <label for="signup-password">Password</label>
+            <input type="password" id="signup-password" class="form-control" [(ngModel)]="signupData.password" name="password" required placeholder="Create a password">
+          </div>
+          
+          <button type="submit" class="submit-button">Sign Up</button>
+          
+          <div class="auth-footer">
+            Already have an account? <span class="auth-link" (click)="switchTab('login')">Login here</span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>

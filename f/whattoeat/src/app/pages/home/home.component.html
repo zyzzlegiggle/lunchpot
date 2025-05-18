@@ -1,7 +1,14 @@
 <div class="page-container">
   <div class="app-header">
-    <h1>What to Eat</h1>
-    <p class="tagline">Discover your next delicious meal</p>
+    <div class="header-content">
+      <div class="logo-section">
+        <h1>What to Eat</h1>
+        <p class="tagline">Discover your next delicious meal</p>
+      </div>
+      
+      <app-account (isLoggedInEvent)="isLoggedInCheck($event)"></app-account>
+
+    </div>
   </div>
   
   <div class="content-container">
@@ -34,6 +41,10 @@
           <ion-icon name="refresh-outline"></ion-icon>
           <span>Try Again</span>
         </button>
+        <button *ngIf="isLoggedIn" class="action-button save-food">
+          <ion-icon name="bookmark-outline"></ion-icon>
+          <span>Save Food</span>
+        </button>
       </div>
     </div>
     
@@ -49,6 +60,7 @@
           </div>
           <div class="restaurant-details">
             <h3>{{restaurant.name}}</h3>
+            
             <!-- <div *ngIf="restaurant.rating" class="rating">
               <div class="stars">
                 <ion-icon *ngFor="let star of [1,2,3,4,5]" 
@@ -69,4 +81,3 @@
     </div>
   </div>
 </div>
-

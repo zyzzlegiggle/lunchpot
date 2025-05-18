@@ -7,11 +7,12 @@ import { RestaurantData } from 'src/app/interfaces/restaurant-data';
 import { ApiService } from 'src/app/services/api/api.service';
 import { locationOutline, mapOutline, refreshOutline, restaurantOutline } from 'ionicons/icons';
 import { IonIcon } from '@ionic/angular/standalone';
+import { AccountComponent } from 'src/app/components/account/account.component';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  imports: [CommonModule, IonIcon]
+  imports: [CommonModule, IonIcon, AccountComponent]
 })
 export class HomeComponent  implements OnInit {
   selectedFood: FoodData = {name:'', imageLink:''};
@@ -24,6 +25,7 @@ export class HomeComponent  implements OnInit {
     longitude:''
   };
   restaurants: RestaurantData[] = [];
+  isLoggedIn: boolean = false;
 
   constructor(private apiService: ApiService) {
     addIcons({mapOutline, restaurantOutline, locationOutline, refreshOutline})
@@ -77,8 +79,13 @@ export class HomeComponent  implements OnInit {
   }
 
   handleImageError(event: any): void {
-  event.target.src = this.selectedFood.imageLink;
+    event.target.src = this.selectedFood.imageLink;
   }
+
+  isLoggedInCheck(isLogin: boolean) {
+    this.isLoggedIn = isLogin;
+  }
+
   
   resetState() {
     this.foodSelected = false;
