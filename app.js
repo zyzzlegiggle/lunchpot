@@ -1,16 +1,22 @@
 let dotenv = require('dotenv').config()
 
-const express = require('express')
+const express = require('express');
+const { default: helmet } = require('helmet');
 const app = express()
 const port = 3000
-const cors = require('cors')
+const cors = require('cors');
+const { getFoodImage, getFoodHistory, run, insertVector } = require('./util');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const firestore = require('@google-cloud/firestore');
+
 
 // config
 app.use(express.json());
-let corsOptions = {
-   origin : ['http://localhost:4200/'],
-}
-app.use(cors());
+app.use(helmet());
+app.use(cors({
+  origin: ["http://localhost:8100"]
+}));
 
 // background cleanup (this run every 1 minute)
 setInterval(() => {
@@ -27,103 +33,29 @@ setInterval(() => {
 
 const eatSession = new Map(); // key: username, value: { foodDeclined: [], lastRecommended: "", lastFetch: Date }
 
-async function run(model, input) {
-  try {
-    const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/${model}`,
-    {
-      
-      headers: { 
-        Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY_WORKERS}`,
-        "Content-Type": "application/json"
-      },
-      method: "POST",
-      body: JSON.stringify(input),
+const db = new firestore({
+  projectId: process.env.GOOGLE_PROJECT_ID,
+  keyFilename: process.env.GOOGLE_JSON_KEY_PATH,
+});
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
+
+// Middleware for JWT validation
+const verifyToken = (req, res, next) => {
+  const token = req.headers['authorization'];
+  if (!token) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(401).json({ error: 'Unauthorized' });
     }
-  );
-    const result = await response.json();
-    return result;
-  } catch (e) {
-    res.status(404).json({ message: error.message });
-  }
-  
-}
+    req.user = decoded;
+    next();
+  });
+};
 
-async function insertVector(indexName, vectors) {
-  try {
-    // make ndjson format
-    const input = vectors.map(v => JSON.stringify(v)).join('\n');
-    const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/vectorize/v2/indexes/${indexName}/insert`,
-    {
-      headers: { 
-        Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY_VECTORIZE}` ,
-        "Content-Type": "application/x-ndjson"
-      },
-      method: "POST",
-      body: input
-    }
-  );
-    const result = await response.json();
-    return result;
-  } catch (e) {
-    res.status(404).json({ message: error.message });
-  }
-}
-
-function getFoodHistory(username) {
-  const foodData = {
-    "jack": ["ayam goreng"],
-    "lucy": ["es teler, mie ayam"],
-    "jamal": ["pempek, siomay"]
-  }
-
-  username = username.toLowerCase();
-  return foodData[username] || ["None"];
-
-}
-
-async function getFoodImage(food){
-  try {
-    const apiKey = process.env.GOOGLE_API_KEY_CUSTOMSEARCH;
-    const engineID = process.env.GOOGLE_ENGINE_ID
-    const response = await fetch(
-    `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${engineID}&q=${food}&searchType=image`,
-    {
-      method: "GET"
-    }
-  );
-    const result = await response.json();
-    return result.items[Math.floor(Math.random() * result.items.length - 1)].link;
-  } catch (e) {
-    throw new Error(e.message);
-  }
-}
-
-async function getRestaurant(food, location) {
-  try {
-    
-    return result;
-  } catch (e) {
-    throw new Error(e.message);
-  }
-}
-
-
-
-  
-  
-app.get("/food", async (req, res) => {
-  try {
-    const output = await getFoodImage("Fried Chicken")
-    const body = {
-      imageLink: output
-    }
-    res.send(body);
-  } catch (error) {
-    res.status(404).json({ message: error.message });
-  }
-})
 
 app.post('/', async (req, res) => {
   try {
@@ -146,6 +78,7 @@ app.post('/', async (req, res) => {
     }
     
     let foodHistory = getFoodHistory(username)
+    
     let sessionData = eatSession.get(username);
     let foodDeclined = sessionData.foodDeclined;
     foodHistory = (foodHistory.length >= 2) ? foodHistory.join(", "): foodHistory;
@@ -262,6 +195,74 @@ app.post('/restaurants', async (req, res) => {
     
 })
 
+app.post('/register', async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    // Check if the email already exists
+    const userRef = db.collection('whattoeat_users').doc('whattoeat_email');
+    const doc = await userRef.get();
+    if (doc.exists) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user
+    await userRef.set({
+      username,
+      email,
+      password: hashedPassword
+    });
+    
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message});
+  }
+    
+})
+
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const userRef = db.collection('whattoeat_users').doc('whattoeat_email');
+    const doc = await userRef.get();
+
+    if (!doc.exists) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const user = doc.data();
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: '1h' });
+
+    res.status(200).json({ message: 'Login successful', token, user: { username: user.username, email } });
+  } catch (error) {
+    res.status(500).json({ error: error.message});
+  }
+});
+
+// Protected route to get user details
+app.get('/user', verifyToken, async (req, res) => {
+  try {
+    // Check if the email already exists
+    const userRef = db.collection('whattoeat_users').doc('whattoeat_email');
+    const doc = await userRef.get();
+    if (doc.exists) {
+      const user = doc.data();
+      res.status(200).json({ message: 'User Found', user: { username: user.username, email: user.email } });
+    }
+    res.status(400).json({ message: 'user not found' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 app.post('/createindex', async (req, res) => {
     try {
@@ -405,6 +406,7 @@ app.get('/queryindex', async (req, res) => {
       res.status(404).json({ message: error.message });
     }
 })
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })

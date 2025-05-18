@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FoodData } from 'src/app/interfaces/food-data';
 import { LocationData } from 'src/app/interfaces/location-data';
+import { LoginData } from 'src/app/interfaces/login-data';
 import { RestaurantData } from 'src/app/interfaces/restaurant-data';
 import { environment } from 'src/environments/environment';
 
@@ -98,6 +99,8 @@ export class ApiService {
       throw new Error(e.message)
     }
   }
+
+  
 }
 
 

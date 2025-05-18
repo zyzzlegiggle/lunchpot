@@ -8,33 +8,171 @@
   gap: 10px;
 }
 
+.auth-button {
+      padding: 10px 20px;
+      border-radius: var(--button-radius);
+      font-weight: 500;
+      font-size: 0.95rem;
+      transition: all var(--transition-speed);
+      outline: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+}
+
 .login-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 10px;
-  border-radius: var(--button-radius);
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all var(--transition-speed) ease;
-  border: none;
-  box-shadow: var(--shadow);
-  background-color: white;
-  color: var(--text-color);
-  border: 1px solid #ddd;
+    background: var(--primary-color);
+    color: white;
+    box-shadow: var(--shadow);
 }
 
 .login-button:hover {
+    background: var(--primary-dark);
     box-shadow: var(--hover-shadow);
     transform: translateY(-2px);
 }
 
-.login-button ion-icon{
-    font-size: 1.2rem;
-    color: #4285F4;
+/* Login modal styles */
+.auth-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s linear 0.25s, opacity 0.25s;
 }
+
+.auth-modal.show {
+    visibility: visible;
+    opacity: 1;
+    transition-delay: 0s;
+}
+
+.auth-modal-content {
+    background: var(--card-background);
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 400px;
+    overflow: hidden;
+    box-shadow: var(--hover-shadow);
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+}
+
+.auth-modal.show .auth-modal-content {
+    transform: translateY(0);
+}
+
+.auth-tabs {
+    display: flex;
+    border-bottom: 1px solid #eee;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 15px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all var(--transition-speed);
+    color: var(--text-light);
+}
+
+.auth-tab.active {
+    color: var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+}
+
+.auth-form-container {
+    padding: 20px;
+}
+
+.auth-form {
+    display: none;
+}
+
+.auth-form.show {
+    display: block;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+    color: var(--text-light);
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border var(--transition-speed);
+}
+
+.form-control:focus {
+    border-color: var(--primary-light);
+    outline: none;
+}
+
+.submit-button {
+    width: 100%;
+    padding: 12px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background var(--transition-speed);
+    margin-top: 10px;
+}
+
+.submit-button:hover {
+    background: var(--primary-dark);
+}
+
+.auth-footer {
+    padding: 15px 20px;
+    text-align: center;
+    background: #f9f9f9;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.auth-link {
+    color: var(--primary-color);
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--text-light);
+}
+
 
 /* User profile when logged in */
 .user-profile {
@@ -140,6 +278,12 @@
 
 .logout-button ion-icon {
   color: var(--primary-color);
+}
+
+/* Animation for modal */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 768px) {

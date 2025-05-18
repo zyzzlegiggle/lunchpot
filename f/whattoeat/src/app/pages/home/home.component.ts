@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { addIcons } from 'ionicons';
 import { FoodData } from 'src/app/interfaces/food-data';
 import { LocationData } from 'src/app/interfaces/location-data';
@@ -12,9 +12,10 @@ import { AccountComponent } from 'src/app/components/account/account.component';
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  imports: [CommonModule, IonIcon, AccountComponent]
+  imports: [CommonModule, IonIcon, AccountComponent],
+  
 })
-export class HomeComponent  implements OnInit {
+export class HomeComponent  implements OnInit, AfterViewInit {
   selectedFood: FoodData = {name:'', imageLink:''};
   isLoading: boolean = false;
   foodSelected: boolean = false;
@@ -33,14 +34,15 @@ export class HomeComponent  implements OnInit {
 
   ngOnInit() {}
 
+  async ngAfterViewInit() {
+    this.location = await this.apiService.getLocation();
+  }
+
   public async onClick() {
     try{
       if (this.isLoading) return;
   
       this.isLoading = true;
-
-      this.location = await this.apiService.getLocation();
-      
       const data = await this.apiService.getFood("jamal", this.location.city, this.location.country)
       this.selectedFood = data;
       

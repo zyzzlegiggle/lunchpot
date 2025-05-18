@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "steel-ridge-445708-p0",
+  "private_key_id": "2b46a71e10d26142a71e36a0b98281be05a1683c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCmsDZB/qmQelPu\nXlrrMpDI7WrQh/KbqT3Raa5HyNzMvpU9212e/HqkdtarmA6KizG5kqkT8dlaSyxg\nHjsQfifTbOUhoGHgVKs2jPmuPVliHLgqsQS8JwWrWAG5UBEqPPV/clmd6PHY/vnc\nOc0MeKey0sU6ZFXr+3J2j88g71uT2PGAy2FM9kNcXWdNOSm1a6BIC1HQx99FZ3PI\nCXvQsWqtcNhk9C3x+OD+k/v5Qz5xbQa1rGj2HV0l1GY0au8aJDgMBSbOZvAVy2Is\nYF5J9KQDHYs3zlEVFKrz6KUEBdh+fDKwzGZ4nlDP2VEKqmXDKI7BcYllm4QOMsP/\nPxwyDlKLAgMBAAECggEAPOYBFLBdM981Xc+UKPyy3+25ihE5BjzZTHJvTWOpo5X3\ngX9tH2I/zmlqeYuWuHAtTQ6zfglsbuwq/LzeuGJW24wb1GK7j5FvcgEkUU+xocI7\nWMGOqM0a6aRAEPubIdLeoF7fNe1+ulhBYf+uFeHY5uDRVMmGiK43ffCBbJd2Xjeb\nw5m3bxInBs1cYMOauiPcyL4uAQS533O9Hshszoc9FrRfv3vseJfNdnhmlPQoeUWT\nQtGSZoDQu3MEMP5/gtW5fyWJsAkjB3We5SMPh/hyuCLXCgQ9cPElptxxJB7kVUp5\nIYfCBgUbMKt0tem+tkXqr6or/6eN9hNog2svNor0jQKBgQDXlcV9MV2CYom2HApS\n0u0uUdIAmNTCZ9rI+s/Y1ZjVOcWE+3hIzDsdfoR5wL7RLyogbGnjtHLNSAHXolTM\n4kaHG+gEgdPNx4XYQ7F7loyy1jMBZNjHQxmjLTW8qQH+trwWzNw7PwPGhA1Khgt7\nB9WAFR/7ux0KYF6XRMxc3VRUJwKBgQDF79GJwNwH+btdxegXczvUmoPaTqKhkLTA\nB7LE04vjf1x1P3U2k4cIFIHr5SUnEVMDBYjAvAFbFVptYhFAto/NjPkvOCvW5+gI\n6L4PkZqf7WJ3gq6M5GbUbxKp6MBDQ5R7U2ABQFEXJF0pv8H+2SXfwafYb5TaIk/6\n2k1tFkCY/QKBgQC4+rjWwAnVO4mgKZUuFfAPQ4NmobxFBumyc4ruKfCWXJi/jypZ\nhGvg1dMDyT+xq7+AzKVbDVVIENYL2SzcE/eiLG67l05OjjmpJARg3//f320qcAaV\ni1yvJ7apJ3cfwFnJUoRRjbNGnb3tyPCG42TtHrMvwxCa+6+OKikUMZEPFwKBgBTI\nPkbpYfDQbrTEz76OkcybwJZORVMTX3b+F+4EjB6Bw9JnrEXjrXzSsmVzNLhqYD3j\n+dzKoJXQoyLy9f7GbEjXsV4c1rWEud8dmL8HuaVrBjioFu2iGY3ab6o5Tt6BHPjp\n4x2ehCUa41E72gGJCSn6KkZWSNmyWpVrEFAQ0w19AoGAToQeY7NbmOq1l/LWrgYp\nXMpSI6jwXbarfLd7cKbnnalZ/RulhhmJKr3vfCyOxEqdO8k5qJjorZ36l7Jui/0/\nrvEigIBCO6bTy1HeV9GCLbRiE3ghcgVw5CzFj31GV6xMjidmzxdYt/aZhRyCl1nz\nb9gqCVckPofFezUHG48JnQQ=\n-----END PRIVATE KEY-----\n",
+  "client_email": "whattoeat-firestore@steel-ridge-445708-p0.iam.gserviceaccount.com",
+  "client_id": "105215384253261882404",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/whattoeat-firestore%40steel-ridge-445708-p0.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

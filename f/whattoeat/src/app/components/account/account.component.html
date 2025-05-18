@@ -40,7 +40,7 @@
               </li>
               <li class="divider"></li>
               <li>
-                <button class="dropdown-item logout-button">
+                <button class="dropdown-item logout-button" (click)="logout()">
                   <ion-icon name="log-out-outline"></ion-icon>
                   <span>Sign Out</span>
                 </button>
@@ -83,7 +83,7 @@
         <form class="auth-form" [ngClass]="{'show': activeTab === 'signup'}" (ngSubmit)="signup()">
           <div class="form-group">
             <label for="signup-name">Full Name</label>
-            <input type="text" id="signup-name" class="form-control" [(ngModel)]="signupData.name" name="name" required placeholder="Enter your full name">
+            <input type="text" id="signup-name" class="form-control" [(ngModel)]="signupData.username" name="name" required placeholder="Enter your full name">
           </div>
           
           <div class="form-group">
