@@ -72,4 +72,54 @@ async function getFoodImage(food){
   }
 }
 
-module.exports = {run, insertVector, getFoodHistory, getFoodImage}
+function validateEmail(email) {
+  if(email.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
+      return;
+    }
+
+  throw new Error('Invalid Email');
+}
+
+function validatePassword(password) {
+    const minLength = 8;
+    const hasUppercase = /[A-Z]/;
+    const hasNumber = /[0-9]/;
+
+    if (
+      password.length >= minLength &&
+      hasUppercase.test(password) &&
+      hasNumber.test(password)
+    ) {
+      return;
+    }
+
+    throw new Error(`Invalid password`)
+  }
+
+  function validateUsername(username) {
+    const minLength = 8;
+    if (username.length >= minLength) return true;
+    throw new Error(`Invalid username`);
+  }
+
+function validateLogin(email, password){
+  try {
+      validateEmail(email);
+      validatePassword(password);  
+    } catch(e) {
+      throw new Error(e.message);
+    }
+}
+
+function validateSignup(username, email, password) {
+  try {
+      validateEmail(email);
+      validatePassword(password);
+      validateUsername(username);
+      
+    } catch (e) {
+      throw new Error(e.message);
+    }
+}
+
+module.exports = {run, insertVector, getFoodHistory, getFoodImage, validateLogin, validateSignup}

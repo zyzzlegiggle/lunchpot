@@ -6,6 +6,7 @@ import { addIcons } from 'ionicons';
 import { bookmarkOutline, chevronDownOutline, logInOutline, logoGoogle, logOutOutline, personOutline, settingsOutline } from 'ionicons/icons';
 import { LoginData } from 'src/app/interfaces/login-data';
 import { SignupData } from 'src/app/interfaces/signup-data';
+import { AccountValidatorService } from 'src/app/services/account-validator/account-validator.service';
 import { ApiService } from 'src/app/services/api/api.service';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
@@ -17,7 +18,7 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 })
 export class AccountComponent  implements OnInit {
   isLoggedIn: boolean = false;
-  userName: string='';
+  username: string='';
   userPhotoUrl: string = '';
   showUserMenu: boolean=false;
   @Output() isLoggedInEvent = new EventEmitter<boolean>();
@@ -26,7 +27,7 @@ export class AccountComponent  implements OnInit {
   loginData: LoginData = {email:'', password:''} 
   signupData: SignupData = {username:'',email:'', password:''}
 
-  constructor(private authService: AuthService) { 
+  constructor(private authService: AuthService, private accountValidator: AccountValidatorService) { 
     addIcons({
       chevronDownOutline, 
       personOutline, 
@@ -60,35 +61,52 @@ export class AccountComponent  implements OnInit {
   }
 
   async login() {
-    console.log('Logging in with:', this.loginData);
-    const response = await this.authService.login(this.loginData);
-    console.log(response)
+    try {
+      //check
+      this.accountValidator.loginCheck(this.loginData);
+      console.log('Logging in with:', this.loginData);
+      await this.authService.login(this.loginData)
+      .then((response: any) => {
+        console.log(response);
+        this.username = response.username
+        // For this example, we'll just simulate successful login
+        this.isLoggedIn = true;
+        this.closeLoginModal();
+        
+        // Reset login form
+        this.loginData = {
+          email: '',
+          password: ''
+        };
+      })
+      
+
+      
+    } catch (e:any) {
+      console.error(e.message);
+      alert(e.message);
+    }
     
-    // For this example, we'll just simulate successful login
-    this.isLoggedIn = true;
-    this.closeLoginModal();
-    
-    // Reset login form
-    this.loginData = {
-      email: '',
-      password: ''
-    };
   }
 
-  signup() {
-    // Here you would implement your signup logic
-    console.log('Signing up with:', this.signupData);
-    
-    // For this example, we'll simulate successful signup and login
-    this.isLoggedIn = true;
-    this.closeLoginModal();
-    
-    // Reset signup form
-    this.signupData = {
-      username: '',
-      email: '',
-      password: ''
-    };
+  async signup() {
+    try {
+      // check
+      this.accountValidator.signupCheck(this.signupData);
+
+      // Here you would implement your signup logic
+      console.log('Signing up with:', this.signupData);
+      const response = await this.authService.signup(this.signupData);
+      // Reset signup form
+      this.signupData = {
+        username: '',
+        email: '',
+        password: ''
+      };
+    } catch (e: any) {
+      console.error(e.message);
+      alert(e.message)
+    } 
   }
 
   logout() {

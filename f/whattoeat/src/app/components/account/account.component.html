@@ -10,7 +10,7 @@
         <!-- Show when user IS logged in -->
         <div *ngIf="isLoggedIn" class="user-profile">
           <div class="profile-info" (click)="toggleUserMenu()">
-            <span class="user-name">{{userName || 'User'}}</span>
+            <span class="user-name">{{username || 'User'}}</span>
             <div class="avatar-container">
               <img [src]="userPhotoUrl || '/api/placeholder/40/40'" alt="Profile photo">
             </div>

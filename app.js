@@ -5,7 +5,7 @@ const { default: helmet } = require('helmet');
 const app = express()
 const port = 3000
 const cors = require('cors');
-const { getFoodImage, getFoodHistory, run, insertVector } = require('./util');
+const { getFoodImage, getFoodHistory, run, insertVector, validateLogin, validateSignup } = require('./util');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const firestore = require('@google-cloud/firestore');
@@ -15,7 +15,7 @@ const firestore = require('@google-cloud/firestore');
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: ["http://localhost:8100"]
+  origin: 'http://localhost:8100'
 }));
 
 // background cleanup (this run every 1 minute)
@@ -55,7 +55,6 @@ const verifyToken = (req, res, next) => {
     next();
   });
 };
-
 
 app.post('/', async (req, res) => {
   try {
@@ -197,12 +196,15 @@ app.post('/restaurants', async (req, res) => {
 
 app.post('/register', async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    let { username, email, password } = req.body;
+    email = email.toLowerCase();
 
+    validateSignup(username, email, password);
+    
     // Check if the email already exists
-    const userRef = db.collection('whattoeat_users').doc('whattoeat_email');
-    const doc = await userRef.get();
-    if (doc.exists) {
+    const userRef = db.collection('whattoeat_users').doc(email)
+    const snapshot = await userRef.get();
+    if (snapshot.exists) {
       return res.status(400).json({ message: 'User already exists' });
     }
 
@@ -225,8 +227,12 @@ app.post('/register', async (req, res) => {
 
 app.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const userRef = db.collection('whattoeat_users').doc('whattoeat_email');
+    let { email, password } = req.body;
+    email = email.toLowerCase();
+
+    validateLogin(email, password);
+    
+    const userRef = db.collection('whattoeat_users').doc(email);
     const doc = await userRef.get();
 
     if (!doc.exists) {
@@ -251,6 +257,7 @@ app.post('/login', async (req, res) => {
 // Protected route to get user details
 app.get('/user', verifyToken, async (req, res) => {
   try {
+
     // Check if the email already exists
     const userRef = db.collection('whattoeat_users').doc('whattoeat_email');
     const doc = await userRef.get();

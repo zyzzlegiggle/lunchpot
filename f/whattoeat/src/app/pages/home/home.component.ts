@@ -41,6 +41,8 @@ export class HomeComponent  implements OnInit, AfterViewInit {
   public async onClick() {
     try{
       if (this.isLoading) return;
+
+      this.resetState();
   
       this.isLoading = true;
       const data = await this.apiService.getFood("jamal", this.location.city, this.location.country)
