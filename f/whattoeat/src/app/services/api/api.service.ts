@@ -1,16 +1,18 @@
-import { Injectable } from '@angular/core';
+import { HttpClient, HttpContext, HttpResponse } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
 import { FoodData } from 'src/app/interfaces/food-data';
 import { LocationData } from 'src/app/interfaces/location-data';
 import { LoginData } from 'src/app/interfaces/login-data';
 import { RestaurantData } from 'src/app/interfaces/restaurant-data';
 import { environment } from 'src/environments/environment';
+import { USE_AUTH } from '../auth/auth.interceptor';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
   private apiUrl = environment.apiUrl;
-  
+  private http = inject(HttpClient);
   constructor() { }
 
   public async getFood(username:string, city:string, country: string) {
@@ -47,7 +49,12 @@ export class ApiService {
 
   public async getLocation(): Promise<LocationData> {
     try {
-      const countryData = await fetch(environment.countryApi).then(response => response.json())
+      let countryData = {country_name : '', city: ''};
+      await this.http.get(environment.countryApi).subscribe({
+        next: (data: any) => {
+          countryData = data;
+        }
+      })
       console.log(countryData);
       const geolocationData = await this.getCurrentPosition();
       return {
@@ -81,15 +88,15 @@ export class ApiService {
         },
         food: food
       };
-      const restaurantData: any = await fetch(`${this.apiUrl}/restaurants`, {
+      let restaurantData = {places: []};
+      this.http.post(`${this.apiUrl}/restaurants`, JSON.stringify(body), {
         headers: {
           "Content-Type": "application/json"
-        },
-        method: "POST",
-        body: JSON.stringify(body)
-      }).then(response => response.json());
+        }
+      }).subscribe((data: any) => {
+        restaurantData = data;
+      })
       const restaurants: RestaurantData[] = []
-      console.log(restaurantData);
       restaurantData.places.forEach((data: any) => {
         restaurants.push({name: data.displayName.text, address: data.formattedAddress, 
           placeId: data.id, photoLink: data.photoLink});
@@ -100,6 +107,41 @@ export class ApiService {
     }
   }
 
+  public async saveFood(food:string) {
+    try {
+      console.log(food)
+      const body = {
+        food: food
+      }
+    return new Promise((resolve, reject) => {
+      this.http.post(`${this.apiUrl}/save-food`, JSON.stringify(body), {
+      context: new HttpContext().set(USE_AUTH, true),
+      observe: 'response',
+      headers: {
+          "Content-Type": "application/json"
+        }
+    }).subscribe({
+      next: (response: HttpResponse<any>) => {
+        const statusCode = response.status;
+        const body = response.body;
+
+        if (statusCode === 200) {
+          console.log('User check successful', body);
+          resolve(body)
+        } else {
+          console.warn(`Unexpected status code: ${statusCode}`);
+          console.log(body);
+        }
+      },
+      error: (error) => {
+        reject(error);
+      }
+    });
+    })
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+  }
   
 }
 

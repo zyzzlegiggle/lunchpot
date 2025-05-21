@@ -11,7 +11,6 @@
 .auth-button {
       padding: 10px 20px;
       border-radius: var(--button-radius);
-      font-weight: 500;
       font-size: 0.95rem;
       transition: all var(--transition-speed);
       outline: none;
@@ -21,6 +20,10 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
+      padding: 10px 24px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
 }
 
 .login-button {
@@ -291,8 +294,18 @@
         width: 100%;
         text-align: center;
   }
-  .auth-buttons, .user-profile {
+  .user-profile {
     justify-content: center;
+  }
+
+  .auth-buttons {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .auth-button {
+    width: 100%;
+    max-width: 200px;
   }
 
   

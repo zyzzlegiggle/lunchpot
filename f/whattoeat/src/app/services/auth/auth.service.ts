@@ -1,9 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { LoginData } from 'src/app/interfaces/login-data';
 import { environment } from 'src/environments/environment';
 import { LocalStorageService } from '../local-storage/local-storage.service';
 import { SignupData } from 'src/app/interfaces/signup-data';
+import { USE_AUTH } from './auth.interceptor';
 
 @Injectable({
   providedIn: 'root'
@@ -64,14 +65,32 @@ export class AuthService {
   }
 
   public async checkUser() {
-    try {
-      this.http.get(`${this.apiUrl}/user`).subscribe(user => {
-        console.log(user);
-      });
-    } catch (e: any) {
-      throw new Error(e.message)
-    }
-    
+  try {
+    return new Promise((resolve, reject) => {
+      this.http.get(`${this.apiUrl}/user`, {
+      context: new HttpContext().set(USE_AUTH, true),
+      observe: 'response'
+    }).subscribe({
+      next: (response: HttpResponse<any>) => {
+        const statusCode = response.status;
+        const body = response.body;
+
+        if (statusCode === 200) {
+          console.log('User check successful', body.user.username);
+          resolve(body)
+        } else {
+          console.warn(`Unexpected status code: ${statusCode}`);
+          console.log(body);
+        }
+      },
+      error: (error) => {
+        reject(error);
+      }
+    });
+    })
+  } catch (e: any) {
+    throw new Error(e.message);
   }
+}
 
 }

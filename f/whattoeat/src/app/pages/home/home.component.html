@@ -41,7 +41,7 @@
           <ion-icon name="refresh-outline"></ion-icon>
           <span>Try Again</span>
         </button>
-        <button *ngIf="isLoggedIn" class="action-button save-food">
+        <button *ngIf="isLoggedIn" class="action-button save-food" (click)="saveFood()">
           <ion-icon name="bookmark-outline"></ion-icon>
           <span>Save Food</span>
         </button>

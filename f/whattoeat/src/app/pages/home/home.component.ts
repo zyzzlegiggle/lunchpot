@@ -82,12 +82,22 @@ export class HomeComponent  implements OnInit, AfterViewInit {
 
   }
 
+  public async saveFood() {
+    try {
+      const foodName = this.selectedFood.name;
+      await this.apiService.saveFood(foodName)
+    } catch (e: any) {
+      console.error(e.message)
+    }
+  }
+
   handleImageError(event: any): void {
     event.target.src = this.selectedFood.imageLink;
   }
 
   isLoggedInCheck(isLogin: boolean) {
     this.isLoggedIn = isLogin;
+    console.log(this.isLoggedIn);
   }
 
   

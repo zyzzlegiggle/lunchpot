@@ -42,18 +42,24 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 
 // Middleware for JWT validation
 const verifyToken = (req, res, next) => {
-  const token = req.headers['authorization'];
-  if (!token) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
-    if (err) {
+  try {
+    let token = req.headers['authorization'];
+    token = token?.split(" ")[1]; // remove bearer
+    console.log(token);
+    if (!token) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    req.user = decoded;
-    next();
-  });
+
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+      req.user = decoded; // decoded = { email: 'something@example.com', iat: ..., exp: ... }
+      next();
+    });
+  } catch (e) {
+    throw new Error(e.message);
+  }
 };
 
 app.post('/', async (req, res) => {
@@ -200,7 +206,7 @@ app.post('/register', async (req, res) => {
     email = email.toLowerCase();
 
     validateSignup(username, email, password);
-    
+
     // Check if the email already exists
     const userRef = db.collection('whattoeat_users').doc(email)
     const snapshot = await userRef.get();
@@ -234,6 +240,7 @@ app.post('/login', async (req, res) => {
     
     const userRef = db.collection('whattoeat_users').doc(email);
     const doc = await userRef.get();
+    console.log(doc);
 
     if (!doc.exists) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -257,9 +264,9 @@ app.post('/login', async (req, res) => {
 // Protected route to get user details
 app.get('/user', verifyToken, async (req, res) => {
   try {
-
+    const email = req.user.email; //from verify token
     // Check if the email already exists
-    const userRef = db.collection('whattoeat_users').doc('whattoeat_email');
+    const userRef = db.collection('whattoeat_users').doc(email);
     const doc = await userRef.get();
     if (doc.exists) {
       const user = doc.data();
@@ -270,6 +277,24 @@ app.get('/user', verifyToken, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.post('/save-food', verifyToken, async (req, res) => {
+  try {
+    console.log('save-food')
+    let food = req.body.food;
+    food = food.toLowerCase()
+    const email = req.user.email; //from verify token
+    const userRef = db.collection('whattoeat_users').doc(email);
+    const unionRes = await userRef.update({
+      food: firestore.FieldValue.arrayUnion(food)
+    })
+    console.log(unionRes);
+    res.status(200).json({message: 'Success'});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 app.post('/createindex', async (req, res) => {
     try {

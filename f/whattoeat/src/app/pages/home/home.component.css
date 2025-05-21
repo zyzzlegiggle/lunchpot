@@ -6,11 +6,14 @@
   padding: 20px;
   overflow: scroll;
 }
-
-/* Updated Header with account section */
 .app-header {
   margin-bottom: 2.5rem;
   width: 100%;
+  background-color: var(--card-background);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  margin-bottom: 2.5rem;
 }
 
 .header-content {
@@ -19,10 +22,23 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 15px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .logo-section {
   text-align: center;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-section h1 {
+  margin: 0;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 2.2rem;
 }
 
 h1 {
@@ -36,8 +52,15 @@ h1 {
   font-size: 1.1rem;
   color: var(--text-light);
   margin-top: 0;
+  font-weight: 500;
+  margin: 0;
 }
 
+/* food icon */
+.food-icon {
+  color: var(--primary-color);
+  font-size: 2rem;
+}
 
 
 /* Save food button */
@@ -369,6 +392,9 @@ h1 {
 
 /* Responsive design */
 @media (max-width: 768px) {
+  .app-header {
+    padding: 1rem;
+  }
   .header-content {
     flex-direction: column;
     gap: 20px;
@@ -377,8 +403,17 @@ h1 {
   .logo-section{
     width: 100%;
     text-align: center;
+    flex-direction: column;
   }
   
+  .logo-section h1 {
+    font-size: 1.8rem;
+    margin-top: 8px;
+  }
+  
+  .food-icon {
+    font-size: 2.5rem;
+  }
   
 }
 

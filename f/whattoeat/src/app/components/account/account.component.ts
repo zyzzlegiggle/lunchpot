@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -39,8 +39,18 @@ export class AccountComponent  implements OnInit {
     })
   }
 
-  ngOnInit() {
-    this.isLoggedInEvent.emit(this.isLoggedIn);
+  async ngOnInit() {
+    try {
+      const response: any = await this.authService.checkUser();
+      this.username = response.user.username;
+      this.isLoggedIn = true;
+      console.log(this.username)
+    } catch (e:any) {
+      console.error(e.message)
+    } finally {
+      this.isLoggedInEvent.emit(this.isLoggedIn);
+    }
+    
   }
 
   
@@ -71,6 +81,7 @@ export class AccountComponent  implements OnInit {
         this.username = response.username
         // For this example, we'll just simulate successful login
         this.isLoggedIn = true;
+        this.isLoggedInEvent.emit(this.isLoggedIn);
         this.closeLoginModal();
         
         // Reset login form
