@@ -1,3 +1,5 @@
+const { FieldValue } = require('@google-cloud/firestore');
+const firestore = require('@google-cloud/firestore');
 let dotenv = require('dotenv').config()
 async function run(model, input) {
   try {
@@ -43,15 +45,11 @@ async function insertVector(indexName, vectors) {
   }
 }
 
-function getFoodHistory(username) {
-  const foodData = {
-    "jack": ["ayam goreng"],
-    "lucy": ["es teler, mie ayam"],
-    "jamal": ["pempek, siomay"]
-  }
-
-  username = username.toLowerCase();
-  return foodData[username] || ["None"];
+async function getFoodHistory(email) {
+  const userRef = db.collection('whattoeat_users').doc(email);
+  const snapshot = await userRef.get();
+  const foodHistory = snapshot.data().food;
+  return  foodHistory || ["None"];
 
 }
 
@@ -122,4 +120,30 @@ function validateSignup(username, email, password) {
     }
 }
 
-module.exports = {run, insertVector, getFoodHistory, getFoodImage, validateLogin, validateSignup}
+const db = new firestore({
+  projectId: process.env.GOOGLE_PROJECT_ID,
+  keyFilename: process.env.GOOGLE_JSON_KEY_PATH,
+});
+
+
+async function saveFood(email, food){
+  try {
+    const userRef = db.collection('whattoeat_users').doc(email);
+    const unionRes = await userRef.update({
+      food: FieldValue.arrayUnion(food)
+    })
+    console.log(unionRes);
+  } catch (e) {
+    throw new Error(e.message)
+  }
+}
+
+module.exports = {
+  run,
+  insertVector, 
+  getFoodHistory, 
+  getFoodImage, 
+  validateLogin, 
+  validateSignup,
+  saveFood
+}

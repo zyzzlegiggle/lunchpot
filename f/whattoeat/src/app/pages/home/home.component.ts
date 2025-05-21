@@ -45,8 +45,8 @@ export class HomeComponent  implements OnInit, AfterViewInit {
       this.resetState();
   
       this.isLoading = true;
-      const data = await this.apiService.getFood("jamal", this.location.city, this.location.country)
-      this.selectedFood = data;
+      const data: any = await this.apiService.getFood("jamal", this.location.city, this.location.country)
+      this.selectedFood = data
       
     } catch (e: any) {
       console.error(`Error on fetching food data:${e.message}`)

@@ -21,27 +21,39 @@ export class ApiService {
         "location": {
           "country": country,
           "city": city
-        },
-        "username": username
+        }
       }
-      console.log(body);
-      const output = await fetch(this.apiUrl, {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(body)
-      })
-      if (!output.ok) {
-        throw new Error('Network response was not ok');
-      }
-      const data = await output.json();
-      const foodData: FoodData =  {
-        name: data.food,
-        imageLink: data.imageLink
-      }
-      return foodData
+      
+      return new Promise((resolve, reject) => {
+      this.http.post(`${this.apiUrl}`, JSON.stringify(body), {
+      context: new HttpContext().set(USE_AUTH, true),
+      observe: 'response',
+      headers: {
+          "Content-Type": "application/json"
+        }
+    }).subscribe({
+      next: (response: HttpResponse<any>) => {
+        const statusCode = response.status;
+        const body: any = response.body;
 
+        if (statusCode === 200) {
+          console.log('User check successful', body);
+          const foodData: FoodData =  {
+            name: body.food,
+            imageLink: body.imageLink
+          }
+          console.log(foodData)
+          resolve(foodData);
+        } else {
+          console.warn(`Unexpected status code: ${statusCode}`);
+          console.log(body);
+        }
+      },
+      error: (error) => {
+        reject(error);
+      }
+    });
+    })
     } catch (e: any) {
       throw new Error(e.message);
     }
@@ -89,13 +101,16 @@ export class ApiService {
         food: food
       };
       let restaurantData = {places: []};
-      this.http.post(`${this.apiUrl}/restaurants`, JSON.stringify(body), {
+      const response = await fetch(`${this.apiUrl}/restaurants`, {
         headers: {
           "Content-Type": "application/json"
-        }
-      }).subscribe((data: any) => {
-        restaurantData = data;
+        },
+        body: JSON.stringify(body),
+        method: "POST"
       })
+
+      restaurantData = await response.json()
+
       const restaurants: RestaurantData[] = []
       restaurantData.places.forEach((data: any) => {
         restaurants.push({name: data.displayName.text, address: data.formattedAddress, 

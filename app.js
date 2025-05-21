@@ -5,7 +5,7 @@ const { default: helmet } = require('helmet');
 const app = express()
 const port = 3000
 const cors = require('cors');
-const { getFoodImage, getFoodHistory, run, insertVector, validateLogin, validateSignup } = require('./util');
+const { getFoodImage, getFoodHistory, run, insertVector, validateLogin, validateSignup, saveFood } = require('./util');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const firestore = require('@google-cloud/firestore');
@@ -19,14 +19,20 @@ app.use(cors({
 }));
 
 // background cleanup (this run every 1 minute)
-setInterval(() => {
+setInterval(async () => {
   console.log("background session run");
   console.log(eatSession);
   const now = Date.now();
-  for (const [username, session] of eatSession.entries()) {
+  for (const [email, session] of eatSession.entries()) {
     if (now - session.lastFetch > 10 * 60 * 1000) {
-      eatSession.delete(username); // remove if there is no activity after 10 minutes
-      console.log(`Session for ${username} has been removed due to inactivity.`);
+      // Check if the email already exists
+      const userRef = db.collection('whattoeat_users').doc(email)
+      const snapshot = await userRef.get();
+      if (snapshot.exists) {
+        saveFood(email, eatSession.get(email).lastRecommended)
+      }
+      eatSession.delete(email); // remove if there is no activity after 10 minutes
+      console.log(`Session for ${email} has been removed due to inactivity.`);
     }
   }
 }, 60 * 1000)
@@ -62,29 +68,52 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-app.post('/', async (req, res) => {
+// middleware to get email from jwt validation (just for email purposes only)
+const getEmail = (req, res, next) => {
+  req.user = { email: 'anonymous' };
+  let token = req.headers['authorization'];
+  token = token?.split(" ")[1]; // remove 'Bearer'
+
+  if (!token) {
+    return next();
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err || !decoded?.email) {
+      // leave as anonymous
+      return next();
+    }
+
+    req.user = decoded; // valid token with email
+    next();
+  });
+};
+
+
+
+app.post('/', getEmail, async (req, res) => {
   try {
     const location = req.body.location;
-    const username = req.body.username;
+    const email = req.user.email;
     // get time
     const now = Date.now();
 
     // create session
-    if (!eatSession.has(username)) {
-      eatSession.set(username, {
+    if (!eatSession.has(email)) {
+      eatSession.set(email, {
         foodDeclined: [],
         lastRecommended: "",
         lastFetch: now
       })
     } else {
-      const session = eatSession.get(username);
+      const session = eatSession.get(email);
       session.foodDeclined.push(session.lastRecommended);
       session.lastFetch = now
     }
     
-    let foodHistory = getFoodHistory(username)
-    
-    let sessionData = eatSession.get(username);
+    let foodHistory = await getFoodHistory(email)
+    console.log(foodHistory)
+    let sessionData = eatSession.get(email);
     let foodDeclined = sessionData.foodDeclined;
     foodHistory = (foodHistory.length >= 2) ? foodHistory.join(", "): foodHistory;
     foodDeclined = (foodDeclined.length >=2) ? foodDeclined.join(", "): foodDeclined;
@@ -139,7 +168,7 @@ app.post('/', async (req, res) => {
       food: food,
       imageLink: imageLink
     }
-    res.send(output);
+    res.status(200).send(output)
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
@@ -284,11 +313,7 @@ app.post('/save-food', verifyToken, async (req, res) => {
     let food = req.body.food;
     food = food.toLowerCase()
     const email = req.user.email; //from verify token
-    const userRef = db.collection('whattoeat_users').doc(email);
-    const unionRes = await userRef.update({
-      food: firestore.FieldValue.arrayUnion(food)
-    })
-    console.log(unionRes);
+    await saveFood(email, food)
     res.status(200).json({message: 'Success'});
   } catch (error) {
     res.status(500).json({ error: error.message });
