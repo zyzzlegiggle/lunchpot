@@ -5,7 +5,7 @@ import { FoodData } from 'src/app/interfaces/food-data';
 import { LocationData } from 'src/app/interfaces/location-data';
 import { RestaurantData } from 'src/app/interfaces/restaurant-data';
 import { ApiService } from 'src/app/services/api/api.service';
-import { locationOutline, mapOutline, refreshOutline, restaurantOutline } from 'ionicons/icons';
+import { locationOutline, mapOutline, refreshOutline, restaurantOutline, star, starHalf, starOutline } from 'ionicons/icons';
 import { IonIcon } from '@ionic/angular/standalone';
 import { AccountComponent } from 'src/app/components/account/account.component';
 @Component({
@@ -29,7 +29,7 @@ export class HomeComponent  implements OnInit, AfterViewInit {
   isLoggedIn: boolean = false;
 
   constructor(private apiService: ApiService) {
-    addIcons({mapOutline, restaurantOutline, locationOutline, refreshOutline})
+    addIcons({mapOutline, restaurantOutline, locationOutline, refreshOutline, starHalf, starOutline, star})
    }
 
   ngOnInit() {}

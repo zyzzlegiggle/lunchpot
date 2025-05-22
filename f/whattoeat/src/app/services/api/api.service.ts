@@ -30,7 +30,8 @@ export class ApiService {
       observe: 'response',
       headers: {
           "Content-Type": "application/json"
-        }
+        },
+      withCredentials: true
     }).subscribe({
       next: (response: HttpResponse<any>) => {
         const statusCode = response.status;
@@ -62,7 +63,7 @@ export class ApiService {
   public async getLocation(): Promise<LocationData> {
     try {
       let countryData = {country_name : '', city: ''};
-      await this.http.get(environment.countryApi).subscribe({
+      this.http.get(environment.countryApi).subscribe({
         next: (data: any) => {
           countryData = data;
         }
@@ -109,12 +110,31 @@ export class ApiService {
         method: "POST"
       })
 
+      console.log(response)
+
       restaurantData = await response.json()
 
       const restaurants: RestaurantData[] = []
+      console.log(restaurantData)
       restaurantData.places.forEach((data: any) => {
-        restaurants.push({name: data.displayName.text, address: data.formattedAddress, 
-          placeId: data.id, photoLink: data.photoLink});
+        console.log(data)
+        restaurants.push({
+          name: data.displayName.text,
+          address: data.formattedAddress, 
+          placeId: data.id, 
+          photoLink: data.photoLink,
+          rating: data.rating,
+          priceRange: {
+            startPrice: {
+              currencyCode: data.priceRange?.startPrice.currencyCode,
+              units: data.priceRange?.startPrice.units
+            },
+            endPrice: {
+              currencyCode: data.priceRange?.endPrice.currencyCode,
+              units: data.priceRange?.endPrice.units
+            }
+          }
+        });
       })
       return restaurants;
     } catch (e: any) {
@@ -134,7 +154,8 @@ export class ApiService {
       observe: 'response',
       headers: {
           "Content-Type": "application/json"
-        }
+        },
+      withCredentials: true
     }).subscribe({
       next: (response: HttpResponse<any>) => {
         const statusCode = response.status;

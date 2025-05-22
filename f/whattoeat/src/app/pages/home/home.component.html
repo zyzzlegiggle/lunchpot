@@ -59,16 +59,37 @@
             >
           </div>
           <div class="restaurant-details">
-            <h3>{{restaurant.name}}</h3>
+            <div class="restaurant-title">
+              <h3>{{restaurant.name}}</h3>
+            </div>
             
-            <!-- <div *ngIf="restaurant.rating" class="rating">
+            
+            <div *ngIf="restaurant.rating" class="rating">
               <div class="stars">
-                <ion-icon *ngFor="let star of [1,2,3,4,5]" 
-                          [name]="star <= restaurant.rating ? 'star' : (star - 0.5 <= restaurant.rating ? 'star-half' : 'star-outline')">
+                <ion-icon *ngFor="let star of [1,2,3,4,5];" 
+                          [name]="(star <= restaurant.rating) ? 'star' : (star - 0.5 <= restaurant.rating ? 'star-half' : 'star-outline')">
                 </ion-icon>
               </div>
               <span class="rating-number">{{restaurant.rating}}</span>
-            </div> -->
+            </div>
+            <!-- template for price range placeholder -->
+            <div class="price-range">
+              <span class="price-label">
+                <ng-container *ngIf="restaurant.priceRange?.startPrice?.units != null && restaurant.priceRange?.endPrice?.units != null; else placeholder">
+                  {{ restaurant.priceRange.startPrice.currencyCode }}
+                  {{ restaurant.priceRange.startPrice.units }}
+                  -
+                  {{ restaurant.priceRange.endPrice.units }}
+                </ng-container>
+                <ng-template #placeholder>
+                  Price not available
+                </ng-template>
+              </span>
+            </div>
+            <div class="open-status">
+              Status: 
+              <span class="status-color">Open</span>
+            </div>
             <a [href]="'https://www.google.com/maps/place/?q=place_id:' + restaurant.placeId" 
                target="_blank" 
                class="view-button">

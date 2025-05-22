@@ -9,14 +9,20 @@ const { getFoodImage, getFoodHistory, run, insertVector, validateLogin, validate
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const firestore = require('@google-cloud/firestore');
+const { v4: uuidv4 } = require('uuid');
 
+const cookieParser = require('cookie-parser');
+
+const isProd = process.env.NODE_ENV === 'production';
 
 // config
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: 'http://localhost:8100'
+  origin: 'http://localhost:8100',
+  credentials: true
 }));
+app.use(cookieParser());
 
 // background cleanup (this run every 1 minute)
 setInterval(async () => {
@@ -68,6 +74,25 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+
+// assign before get email
+const assignAnonymousId = (req, res, next) => {
+  let anonId = req.cookies?.anonId;
+
+  if (!anonId) {
+    anonId = uuidv4(); // Generate new UUID
+    res.cookie('anonId', anonId, { 
+      httpOnly: true, 
+      secure: isProd, // HTTPS only in production
+      sameSite: isProd ? 'Strict' : 'Lax',
+      maxAge: 1 * 1 * 60 * 60 * 1000  // 1 hour
+    });
+  }
+
+  req.anonId = anonId;
+  next();
+};
+
 // middleware to get email from jwt validation (just for email purposes only)
 const getEmail = (req, res, next) => {
   req.user = { email: 'anonymous' };
@@ -91,29 +116,27 @@ const getEmail = (req, res, next) => {
 
 
 
-app.post('/', getEmail, async (req, res) => {
+app.post('/', assignAnonymousId, getEmail, async (req, res) => {
   try {
     const location = req.body.location;
-    const email = req.user.email;
-    // get time
+    const sessionKey = req.user?.email === 'anonymous' ? req.anonId : req.user.email;;
     const now = Date.now();
 
-    // create session
-    if (!eatSession.has(email)) {
-      eatSession.set(email, {
+    if (!eatSession.has(sessionKey)) {
+      eatSession.set(sessionKey, {
         foodDeclined: [],
         lastRecommended: "",
         lastFetch: now
-      })
+      });
     } else {
-      const session = eatSession.get(email);
+      const session = eatSession.get(sessionKey);
       session.foodDeclined.push(session.lastRecommended);
-      session.lastFetch = now
+      session.lastFetch = now;
     }
     
-    let foodHistory = await getFoodHistory(email)
+    let foodHistory = await getFoodHistory(sessionKey)
     console.log(foodHistory)
-    let sessionData = eatSession.get(email);
+    let sessionData = eatSession.get(sessionKey);
     let foodDeclined = sessionData.foodDeclined;
     foodHistory = (foodHistory.length >= 2) ? foodHistory.join(", "): foodHistory;
     foodDeclined = (foodDeclined.length >=2) ? foodDeclined.join(", "): foodDeclined;
@@ -121,7 +144,6 @@ app.post('/', getEmail, async (req, res) => {
     const systemPrompt = `
     -Recommend 1 food in a country to be recommended to user
     -You can also recommend food from the user food history
-    -You can recommend a popular brand that is in that country (e.g. KFC)
     -User food history: ${foodHistory}
     -Food that user declined: ${foodDeclined}
     -Do not recommend foods that user declined
@@ -184,7 +206,7 @@ app.post('/restaurants', async (req, res) => {
     const food = req.body.food;
     const body = {
       textQuery: `${food} restaurants`,
-      maxResultCount: 5,
+      maxResultCount: 6,
       locationBias: {
         circle: {
           center: { latitude, longitude },
@@ -200,7 +222,7 @@ app.post('/restaurants', async (req, res) => {
       headers: { 
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.photos'
+        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.photos,places.priceRange,places.rating'
       },
       method: "POST",
       body: JSON.stringify(body),
@@ -221,7 +243,7 @@ app.post('/restaurants', async (req, res) => {
       // delete photos array containing photo data (not link)
       delete result.places[i].photos; // replace 'unwantedKey' with the actual property name
     }
-    
+    console.log(result.places);
     res.send(result);
   } catch (error) {
     res.status(404).json({ message: error.message });

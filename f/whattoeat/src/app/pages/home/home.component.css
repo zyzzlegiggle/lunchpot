@@ -335,6 +335,13 @@ h1 {
   flex: 1;
 }
 
+.restaurant-title {
+  height: 1.8em; /* approx. 1 lines */
+  overflow:scroll;
+  text-overflow: ellipsis !important;
+  
+}
+
 .restaurant-card h3 {
   margin-top: 0;
   margin-bottom: 10px;
@@ -364,6 +371,35 @@ h1 {
   font-size: 0.9rem;
 }
 
+
+/* Price Range */
+.price-range {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px !important;
+  gap: 8px;
+}
+
+.price-label {
+  color: var(--text-light);
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+/* restaurant status */
+.open-status {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px !important;
+  gap: 8px;
+   color: var(--text-light);
+  font-size: 0.85rem;
+  text-transform: capitalize;
+}
+
+.status-color {
+  color: #16C47F;
+}
 /* Maps view button */
 .view-button {
   display: flex;

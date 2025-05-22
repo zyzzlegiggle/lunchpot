@@ -48,6 +48,9 @@ async function insertVector(indexName, vectors) {
 async function getFoodHistory(email) {
   const userRef = db.collection('whattoeat_users').doc(email);
   const snapshot = await userRef.get();
+  if (!snapshot.exists) {
+      return ["None"]
+  }
   const foodHistory = snapshot.data().food;
   return  foodHistory || ["None"];
 
