@@ -89,14 +89,14 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   width: 100%;
 }
 
 /* Food button styles */
 .food-button {
-  width: 220px;
-  height: 220px;
+  width: 260px;
+  height: 260px;
   border-radius: 50%;
   background: linear-gradient(145deg, var(--primary-color), var(--primary-dark));
   color: white;
@@ -338,7 +338,6 @@ h1 {
 .restaurant-title {
   height: 1.8em; /* approx. 1 lines */
   overflow:scroll;
-  text-overflow: ellipsis !important;
   
 }
 
@@ -463,8 +462,8 @@ h1 {
   }
   
   .food-button {
-    width: 180px;
-    height: 180px;
+    width: 200px;
+    height: 200px;
   }
   
   .food-button.selected {

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, HostListener, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -9,6 +9,7 @@ import { SignupData } from 'src/app/interfaces/signup-data';
 import { AccountValidatorService } from 'src/app/services/account-validator/account-validator.service';
 import { ApiService } from 'src/app/services/api/api.service';
 import { AuthService } from 'src/app/services/auth/auth.service';
+import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
 
 @Component({
   selector: 'app-account',
@@ -26,8 +27,9 @@ export class AccountComponent  implements OnInit {
   activeTab = 'login';
   loginData: LoginData = {email:'', password:''} 
   signupData: SignupData = {username:'',email:'', password:''}
+  isLoading = false;
 
-  constructor(private authService: AuthService, private accountValidator: AccountValidatorService) { 
+  constructor(private authService: AuthService, private accountValidator: AccountValidatorService, private localService: LocalStorageService) { 
     addIcons({
       chevronDownOutline, 
       personOutline, 
@@ -72,23 +74,18 @@ export class AccountComponent  implements OnInit {
 
   async login() {
     try {
+      if (this.isLoading) return;
       //check
+      if(this.isLoggedIn) {
+        this.closeLoginModal();
+         return;
+      }
+      this.isLoading = true;
       this.accountValidator.loginCheck(this.loginData);
       console.log('Logging in with:', this.loginData);
       await this.authService.login(this.loginData)
       .then((response: any) => {
-        console.log(response);
-        this.username = response.username
-        // For this example, we'll just simulate successful login
-        this.isLoggedIn = true;
-        this.isLoggedInEvent.emit(this.isLoggedIn);
-        this.closeLoginModal();
-        
-        // Reset login form
-        this.loginData = {
-          email: '',
-          password: ''
-        };
+        location.reload()
       })
       
 
@@ -96,13 +93,17 @@ export class AccountComponent  implements OnInit {
     } catch (e:any) {
       console.error(e.message);
       alert(e.message);
+    } finally {
+      this.isLoading = false;
     }
     
   }
 
   async signup() {
     try {
+      if (this.isLoading) return;
       // check
+      this.isLoading = true;
       this.accountValidator.signupCheck(this.signupData);
 
       // Here you would implement your signup logic
@@ -117,13 +118,17 @@ export class AccountComponent  implements OnInit {
     } catch (e: any) {
       console.error(e.message);
       alert(e.message)
-    } 
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   logout() {
     // Implement logout logic
-    this.isLoggedIn = false;
+    this.localService.removeItem('token');
+    location.reload();
   }
+
 
 
 }

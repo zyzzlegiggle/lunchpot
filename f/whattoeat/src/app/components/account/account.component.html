@@ -3,41 +3,41 @@
         <div *ngIf="!isLoggedIn" class="auth-buttons">
            <button (click)="openLoginModal()" class="auth-button login-button">
               <ion-icon name="log-in-outline"></ion-icon>
-              Login
+              Sign In
             </button>
         </div>
         
         <!-- Show when user IS logged in -->
         <div *ngIf="isLoggedIn" class="user-profile">
           <div class="profile-info" (click)="toggleUserMenu()">
-            <span class="user-name">{{username || 'User'}}</span>
-            <div class="avatar-container">
+            <span class="user-name">Hi, {{username || 'User'}}</span>
+            <!-- <div class="avatar-container">
               <img [src]="userPhotoUrl || '/api/placeholder/40/40'" alt="Profile photo">
-            </div>
+            </div> -->
             <ion-icon name="chevron-down-outline" class="dropdown-icon"></ion-icon>
           </div>
           
           <!-- Dropdown menu -->
           <div *ngIf="showUserMenu" class="user-dropdown">
             <ul class="dropdown-menu">
-              <li>
+              <!-- <li>
                 <a href="#" class="dropdown-item">
                   <ion-icon name="person-outline"></ion-icon>
                   <span>My Profile</span>
                 </a>
-              </li>
+              </li> -->
               <li>
                 <a href="#" class="dropdown-item">
                   <ion-icon name="bookmark-outline"></ion-icon>
                   <span>Saved Foods</span>
                 </a>
               </li>
-              <li>
+              <!-- <li>
                 <a href="#" class="dropdown-item">
                   <ion-icon name="settings-outline"></ion-icon>
                   <span>Settings</span>
                 </a>
-              </li>
+              </li> -->
               <li class="divider"></li>
               <li>
                 <button class="dropdown-item logout-button" (click)="logout()">
@@ -55,7 +55,7 @@
       <button class="close-button" (click)="closeLoginModal()">×</button>
       
       <div class="auth-tabs">
-        <div class="auth-tab" [ngClass]="{'active': activeTab === 'login'}" (click)="switchTab('login')">Login</div>
+        <div class="auth-tab" [ngClass]="{'active': activeTab === 'login'}" (click)="switchTab('login')">Sign In</div>
         <div class="auth-tab" [ngClass]="{'active': activeTab === 'signup'}" (click)="switchTab('signup')">Sign Up</div>
       </div>
       
@@ -72,7 +72,10 @@
             <input type="password" id="login-password" class="form-control" [(ngModel)]="loginData.password" name="password" required placeholder="Enter your password">
           </div>
           
-          <button type="submit" class="submit-button">Login</button>
+          <button type="submit" class="submit-button">
+            <span *ngIf="!isLoading">Sign In</span>
+            <span *ngIf="isLoading" class="spinner"></span>
+          </button>
           
           <div class="auth-footer">
             Don't have an account? <span class="auth-link" (click)="switchTab('signup')">Sign up here</span>
@@ -96,10 +99,13 @@
             <input type="password" id="signup-password" class="form-control" [(ngModel)]="signupData.password" name="password" required placeholder="Create a password">
           </div>
           
-          <button type="submit" class="submit-button">Sign Up</button>
+          <button type="submit" class="submit-button">
+            <span *ngIf="!isLoading">Sign Up</span>
+            <span *ngIf="isLoading" class="spinner"></span>
+          </button>
           
           <div class="auth-footer">
-            Already have an account? <span class="auth-link" (click)="switchTab('login')">Login here</span>
+            Already have an account? <span class="auth-link" (click)="switchTab('login')">Sign In here</span>
           </div>
         </form>
       </div>

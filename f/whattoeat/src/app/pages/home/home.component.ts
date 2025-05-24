@@ -27,6 +27,7 @@ export class HomeComponent  implements OnInit, AfterViewInit {
   };
   restaurants: RestaurantData[] = [];
   isLoggedIn: boolean = false;
+  getRestaurant: boolean = false;
 
   constructor(private apiService: ApiService) {
     addIcons({mapOutline, restaurantOutline, locationOutline, refreshOutline, starHalf, starOutline, star})
@@ -63,7 +64,7 @@ export class HomeComponent  implements OnInit, AfterViewInit {
 
   public async findRestaurants() {
     try {
-      if (!this.foodSelected || !this.selectedFood.name || !this.location.latitude || !this.location.longitude) {
+      if (!this.foodSelected || !this.selectedFood.name || !this.location.latitude || !this.location.longitude || this.getRestaurant) {
       return;
       }
 
@@ -72,6 +73,7 @@ export class HomeComponent  implements OnInit, AfterViewInit {
       this.restaurants = await this.apiService.getRestaurant(this.selectedFood.name, this.location.latitude, this.location.longitude);
 
       console.log(this.restaurants);
+      this.getRestaurant = true
     } catch (e: any) {
       console.error(e.message);
       alert('Could not find restaurants. Please try again later.');
@@ -105,6 +107,7 @@ export class HomeComponent  implements OnInit, AfterViewInit {
     this.foodSelected = false;
     this.restaurants = [];
     this.selectedFood = { name: '', imageLink: '' };
+    this.getRestaurant = false;
   }
 
 

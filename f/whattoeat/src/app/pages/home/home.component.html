@@ -24,7 +24,7 @@
           <span class="loading-text">Finding deliciousness...</span>
         </div>
         
-        <div *ngIf="foodSelected && !isLoading" class="food-content">
+        <div *ngIf="foodSelected && !isLoading && selectedFood.name != 'Error'" class="food-content">
           <div class="food-image-container">
             <img [src]="selectedFood.imageLink || '/api/placeholder/100/100'" alt="Food image">
           </div>
@@ -48,57 +48,67 @@
       </div>
     </div>
     
-    <div *ngIf="restaurants.length > 0" class="restaurants-section">
-      <h2>Nearby Restaurants</h2>
-      <div class="restaurant-list">
-        <div *ngFor="let restaurant of restaurants" class="restaurant-card">
-          <div class="restaurant-image">
-            <img [src]="restaurant.photoLink || selectedFood.imageLink" 
-            alt="{{restaurant.name}}"
-            (error)="handleImageError($event)"
-            >
-          </div>
-          <div class="restaurant-details">
-            <div class="restaurant-title">
-              <h3>{{restaurant.name}}</h3>
+    <div *ngIf="getRestaurant">
+      <ng-container *ngIf="restaurants.length > 0; else noRestaurant" class="restaurants-section">
+        <h2>Nearby Restaurants</h2>
+        <div class="restaurant-list">
+          <div *ngFor="let restaurant of restaurants" class="restaurant-card">
+            <div class="restaurant-image">
+              <img [src]="restaurant.photoLink || selectedFood.imageLink" 
+              alt="{{restaurant.name}}"
+              (error)="handleImageError($event)"
+              >
             </div>
-            
-            
-            <div *ngIf="restaurant.rating" class="rating">
-              <div class="stars">
-                <ion-icon *ngFor="let star of [1,2,3,4,5];" 
-                          [name]="(star <= restaurant.rating) ? 'star' : (star - 0.5 <= restaurant.rating ? 'star-half' : 'star-outline')">
-                </ion-icon>
+            <div class="restaurant-details">
+              <div class="restaurant-title">
+                <h3>{{restaurant.name}}</h3>
               </div>
-              <span class="rating-number">{{restaurant.rating}}</span>
+              
+              
+              <div *ngIf="restaurant.rating" class="rating">
+                <div class="stars">
+                  <ion-icon *ngFor="let star of [1,2,3,4,5];" 
+                            [name]="(star <= restaurant.rating) ? 'star' : (star - 0.5 <= restaurant.rating ? 'star-half' : 'star-outline')">
+                  </ion-icon>
+                </div>
+                <span class="rating-number">{{restaurant.rating}}</span>
+              </div>
+              <!-- template for price range placeholder -->
+              <div class="price-range">
+                <span class="price-label">
+                  <ng-container *ngIf="restaurant.priceRange?.startPrice?.units != null && restaurant.priceRange?.endPrice?.units != null; else placeholder">
+                    {{ restaurant.priceRange.startPrice.currencyCode }}
+                    {{ restaurant.priceRange.startPrice.units }}
+                    -
+                    {{ restaurant.priceRange.endPrice.units }}
+                  </ng-container>
+                  <ng-template #placeholder>
+                    Price not available
+                  </ng-template>
+                </span>
+              </div>
+              <div class="open-status">
+                Status: 
+                <span class="status-color">Open</span>
+              </div>
+              <a [href]="'https://www.google.com/maps/place/?q=place_id:' + restaurant.placeId" 
+                target="_blank" 
+                class="view-button">
+                <ion-icon name="map-outline"></ion-icon>
+                View on Maps
+              </a>
             </div>
-            <!-- template for price range placeholder -->
-            <div class="price-range">
-              <span class="price-label">
-                <ng-container *ngIf="restaurant.priceRange?.startPrice?.units != null && restaurant.priceRange?.endPrice?.units != null; else placeholder">
-                  {{ restaurant.priceRange.startPrice.currencyCode }}
-                  {{ restaurant.priceRange.startPrice.units }}
-                  -
-                  {{ restaurant.priceRange.endPrice.units }}
-                </ng-container>
-                <ng-template #placeholder>
-                  Price not available
-                </ng-template>
-              </span>
-            </div>
-            <div class="open-status">
-              Status: 
-              <span class="status-color">Open</span>
-            </div>
-            <a [href]="'https://www.google.com/maps/place/?q=place_id:' + restaurant.placeId" 
-               target="_blank" 
-               class="view-button">
-              <ion-icon name="map-outline"></ion-icon>
-              View on Maps
-            </a>
           </div>
         </div>
-      </div>
+      </ng-container>
     </div>
+    
+
+    <ng-template #noRestaurant>
+      <div class="restaurants-section">
+        <h2>Nearby Restaurants</h2>
+        <h3>No restaurant found, try again later</h3>
+      </div>
+    </ng-template>
   </div>
 </div>
