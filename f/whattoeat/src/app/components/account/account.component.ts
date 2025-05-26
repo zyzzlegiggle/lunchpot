@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, HostListener, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { IonIcon } from '@ionic/angular/standalone';
+import { IonIcon, ToastController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { bookmarkOutline, chevronDownOutline, logInOutline, logoGoogle, logOutOutline, personOutline, settingsOutline } from 'ionicons/icons';
 import { LoginData } from 'src/app/interfaces/login-data';
@@ -10,6 +10,7 @@ import { AccountValidatorService } from 'src/app/services/account-validator/acco
 import { ApiService } from 'src/app/services/api/api.service';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { LocalStorageService } from 'src/app/services/local-storage/local-storage.service';
+import { ToastService } from 'src/app/services/toast/toast.service';
 
 @Component({
   selector: 'app-account',
@@ -23,13 +24,19 @@ export class AccountComponent  implements OnInit {
   userPhotoUrl: string = '';
   showUserMenu: boolean=false;
   @Output() isLoggedInEvent = new EventEmitter<boolean>();
+  @Output() savedFoodEvent = new EventEmitter<boolean>();
   showAuthModal = false;
   activeTab = 'login';
   loginData: LoginData = {email:'', password:''} 
   signupData: SignupData = {username:'',email:'', password:''}
   isLoading = false;
 
-  constructor(private authService: AuthService, private accountValidator: AccountValidatorService, private localService: LocalStorageService) { 
+  constructor(
+    private authService: AuthService, 
+    private accountValidator: AccountValidatorService,
+    private localService: LocalStorageService,
+    private toastService: ToastService
+  ) { 
     addIcons({
       chevronDownOutline, 
       personOutline, 
@@ -48,7 +55,7 @@ export class AccountComponent  implements OnInit {
       this.isLoggedIn = true;
       console.log(this.username)
     } catch (e:any) {
-      console.error(e.message)
+      console.log("No account")
     } finally {
       this.isLoggedInEvent.emit(this.isLoggedIn);
     }
@@ -82,19 +89,23 @@ export class AccountComponent  implements OnInit {
       }
       this.isLoading = true;
       this.accountValidator.loginCheck(this.loginData);
-      console.log('Logging in with:', this.loginData);
       await this.authService.login(this.loginData)
-      .then((response: any) => {
-        location.reload()
+      .then((data: any) => {
+        console.log(data);
+        this.username = data.username;
+        this.isLoggedIn = true;
+        this.isLoggedInEvent.emit(this.isLoggedIn);
       })
-      
+      await this.toastService.createToastSuccess(`Sign in successful`);
+      this.closeLoginModal();
 
       
     } catch (e:any) {
       console.error(e.message);
-      alert(e.message);
+      await this.toastService.createToastError(`Sign in failed: ${e.message}`);
     } finally {
       this.isLoading = false;
+      
     }
     
   }
@@ -102,6 +113,10 @@ export class AccountComponent  implements OnInit {
   async signup() {
     try {
       if (this.isLoading) return;
+      if(this.isLoggedIn) {
+        this.closeLoginModal();
+         return;
+      }
       // check
       this.isLoading = true;
       this.accountValidator.signupCheck(this.signupData);
@@ -109,6 +124,7 @@ export class AccountComponent  implements OnInit {
       // Here you would implement your signup logic
       console.log('Signing up with:', this.signupData);
       const response = await this.authService.signup(this.signupData);
+      await this.toastService.createToastSuccess(`Sign up successful`);
       // Reset signup form
       this.signupData = {
         username: '',
@@ -116,12 +132,13 @@ export class AccountComponent  implements OnInit {
         password: ''
       };
     } catch (e: any) {
-      console.error(e.message);
-      alert(e.message)
+      await this.toastService.createToastError(`Sign up failed: ${e.message}`);
     } finally {
       this.isLoading = false;
     }
   }
+
+  
 
   logout() {
     // Implement logout logic
@@ -129,6 +146,15 @@ export class AccountComponent  implements OnInit {
     location.reload();
   }
 
+  @Input() set openLoginModalEvent(value: boolean) {
+    if (value) {
+      this.openLoginModal();
+    }
+  }
+
+  savedFood() {
+    this.savedFoodEvent.emit(true);
+  }
 
 
 }

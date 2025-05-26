@@ -6,8 +6,9 @@ import { LocationData } from 'src/app/interfaces/location-data';
 import { RestaurantData } from 'src/app/interfaces/restaurant-data';
 import { ApiService } from 'src/app/services/api/api.service';
 import { locationOutline, mapOutline, refreshOutline, restaurantOutline, star, starHalf, starOutline } from 'ionicons/icons';
-import { IonIcon } from '@ionic/angular/standalone';
+import { IonAlert, IonIcon } from '@ionic/angular/standalone';
 import { AccountComponent } from 'src/app/components/account/account.component';
+import { ToastService } from 'src/app/services/toast/toast.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -28,8 +29,14 @@ export class HomeComponent  implements OnInit, AfterViewInit {
   restaurants: RestaurantData[] = [];
   isLoggedIn: boolean = false;
   getRestaurant: boolean = false;
+  openLoginModal = false;
+  savedFoodModal = false;
 
-  constructor(private apiService: ApiService) {
+
+  constructor(
+    private apiService: ApiService, 
+    private toastService: ToastService
+  ) {
     addIcons({mapOutline, restaurantOutline, locationOutline, refreshOutline, starHalf, starOutline, star})
    }
 
@@ -43,18 +50,19 @@ export class HomeComponent  implements OnInit, AfterViewInit {
     try{
       if (this.isLoading) return;
 
+      if (!this.location.country) this.location = await this.apiService.getLocation();
+
       this.resetState();
   
       this.isLoading = true;
-      const data: any = await this.apiService.getFood("jamal", this.location.city, this.location.country)
+      const data: any = await this.apiService.getFood(this.location.city, this.location.country)
       this.selectedFood = data
+      this.foodSelected = true;
+      this.isLoading = false;
       
     } catch (e: any) {
-      console.error(`Error on fetching food data:${e.message}`)
-      this.selectedFood.name = "Error";
-    } finally {
-      this.isLoading = false;
-      this.foodSelected = true;
+      this.toastService.createToastError(e.message);
+      this.resetState();
     }
   } 
 
@@ -86,10 +94,24 @@ export class HomeComponent  implements OnInit, AfterViewInit {
 
   public async saveFood() {
     try {
+      if (!this.isLoggedIn) {
+        this.openLoginModal = true;
+        setTimeout(() => {
+          this.openLoginModal = false;
+        });
+        return; // open login modal
+      }
       const foodName = this.selectedFood.name;
+      this.isLoading = true
       await this.apiService.saveFood(foodName)
+      .then (async _ => {
+        await this.toastService.createToastSuccess(`${foodName} is saved`);
+        this.isLoading = false;
+      })
+      
     } catch (e: any) {
       console.error(e.message)
+      await this.toastService.createToastError(e.message);
     }
   }
 
@@ -102,12 +124,18 @@ export class HomeComponent  implements OnInit, AfterViewInit {
     console.log(this.isLoggedIn);
   }
 
+  async savedFoodCheck(value: boolean) {
+    const savedFoods: any = await this.apiService.getSavedFood();
+    console.log(savedFoods.food);
+  }
+
   
   resetState() {
     this.foodSelected = false;
     this.restaurants = [];
     this.selectedFood = { name: '', imageLink: '' };
     this.getRestaurant = false;
+    this.isLoading = false
   }
 
 

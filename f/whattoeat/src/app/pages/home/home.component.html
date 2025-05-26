@@ -6,7 +6,11 @@
         <p class="tagline">Discover your next delicious meal</p>
       </div>
       
-      <app-account (isLoggedInEvent)="isLoggedInCheck($event)"></app-account>
+      <app-account 
+      (isLoggedInEvent)="isLoggedInCheck($event)"
+      [openLoginModalEvent]="openLoginModal"
+      (savedFoodEvent)="savedFoodCheck($event)"
+      ></app-account>
 
     </div>
   </div>
@@ -24,10 +28,20 @@
           <span class="loading-text">Finding deliciousness...</span>
         </div>
         
-        <div *ngIf="foodSelected && !isLoading && selectedFood.name != 'Error'" class="food-content">
-          <div class="food-image-container">
-            <img [src]="selectedFood.imageLink || '/api/placeholder/100/100'" alt="Food image">
-          </div>
+        <div *ngIf="foodSelected && !isLoading" class="food-content">
+          
+            <ng-container *ngIf="selectedFood.imageLink; else placeholderImage">
+              <div class="food-image-container">
+                  <img [src]="selectedFood.imageLink" [alt]="selectedFood.name || 'Food'">
+              </div>
+            
+            </ng-container>
+           <ng-template #placeholderImage>
+              <span class="initial-text">
+                <ion-icon name="restaurant-outline"></ion-icon>
+              </span>
+              
+            </ng-template>
           <span class="food-name">{{selectedFood.name}}</span>
         </div>
       </button>
@@ -41,7 +55,7 @@
           <ion-icon name="refresh-outline"></ion-icon>
           <span>Try Again</span>
         </button>
-        <button *ngIf="isLoggedIn" class="action-button save-food" (click)="saveFood()">
+        <button class="action-button save-food" (click)="saveFood()">
           <ion-icon name="bookmark-outline"></ion-icon>
           <span>Save Food</span>
         </button>

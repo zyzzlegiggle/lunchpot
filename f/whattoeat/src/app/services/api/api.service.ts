@@ -15,7 +15,7 @@ export class ApiService {
   private http = inject(HttpClient);
   constructor() { }
 
-  public async getFood(username:string, city:string, country: string) {
+  public async getFood(city:string, country: string) {
     try {
       const body = {
         "location": {
@@ -78,7 +78,7 @@ export class ApiService {
 
       }
     } catch (e: any) {
-      throw new Error(e.message)
+      throw new Error("Turn on your location services")
     }
   }
 
@@ -163,6 +163,35 @@ export class ApiService {
 
         if (statusCode === 200) {
           console.log('User check successful', body);
+          resolve(body)
+        } else {
+          console.warn(`Unexpected status code: ${statusCode}`);
+          console.log(body);
+        }
+      },
+      error: (error) => {
+        reject(error);
+      }
+    });
+    })
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+  }
+
+  public async getSavedFood() {
+    try {
+    return new Promise((resolve, reject) => {
+      this.http.get(`${this.apiUrl}/saved-food`, {
+      context: new HttpContext().set(USE_AUTH, true),
+      observe: 'response',
+      withCredentials: true
+    }).subscribe({
+      next: (response: HttpResponse<any>) => {
+        const statusCode = response.status;
+        const body = response.body;
+
+        if (statusCode === 200) {
           resolve(body)
         } else {
           console.warn(`Unexpected status code: ${statusCode}`);

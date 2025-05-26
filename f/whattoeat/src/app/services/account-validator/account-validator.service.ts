@@ -31,13 +31,16 @@ export class AccountValidatorService {
       return;
     }
 
-    throw new Error(`Invalid password`)
+    throw new Error(`Invalid password.
+      \n- Must be at least 8 characters long
+      \n- Has at least 1 uppercase letter
+      \n- Has at least 1 number`)
   }
 
   private validateUsername(username: string) {
     const minLength = 8;
     if (username.length >= minLength) return true;
-    throw new Error(`Invalid username`);
+    throw new Error(`Invalid username. Must be at least 8 characters long`);
   }
 
   public loginCheck(loginData: LoginData) {

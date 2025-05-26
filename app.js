@@ -59,12 +59,13 @@ const verifyToken = (req, res, next) => {
     token = token?.split(" ")[1]; // remove bearer
     console.log(token);
     if (!token) {
-      return res.status(401).json({ error: 'Unauthorized' });
+      
+      throw new Error('Unauthorized')
     }
 
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
       if (err) {
-        return res.status(401).json({ error: 'Unauthorized' });
+        throw new Error('Unauthorized')
       }
       req.user = decoded; // decoded = { email: 'something@example.com', iat: ..., exp: ... }
       next();
@@ -329,6 +330,7 @@ app.get('/user', verifyToken, async (req, res) => {
   }
 });
 
+
 app.post('/save-food', verifyToken, async (req, res) => {
   try {
     console.log('save-food')
@@ -337,6 +339,17 @@ app.post('/save-food', verifyToken, async (req, res) => {
     const email = req.user.email; //from verify token
     await saveFood(email, food)
     res.status(200).json({message: 'Success'});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/saved-food', verifyToken, async (req, res) => {
+  try {
+    console.log('saved-food')
+    const email = req.user.email; //from verify token
+    const foodHistory = await getFoodHistory(email);
+    res.status(200).json({food: foodHistory});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
