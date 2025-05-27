@@ -424,6 +424,120 @@ h1 {
   font-size: 1.1rem;
 }
 
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: var(--card-background);
+  border-radius: var(--border-radius);
+  max-width: 500px;
+  width: 90%;
+  max-height: 70vh;
+  box-shadow: var(--hover-shadow);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1.5rem;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: color var(--transition-speed);
+}
+
+.close-button:hover {
+  color: var(--text-color);
+}
+
+.modal-body {
+  padding: 20px;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+
+.no-foods {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-light);
+}
+
+.no-foods ion-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.saved-foods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 15px;
+}
+
+.saved-food-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px;
+  border-radius: var(--border-radius);
+  transition: transform var(--transition-speed);
+  cursor: pointer;
+}
+
+.saved-food-item:hover {
+  transform: scale(1.05);
+  background-color: var(--background-color);
+}
+
+.food-thumbnail {
+  width: 80px;
+  height: 80px;
+   border-radius: var(--border-radius); /* Changed from 50% to use the existing border radius */
+  overflow: hidden;
+  margin-bottom: 10px;
+  border: 2px solid var(--primary-light);
+}
+
+.food-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.saved-food-item .food-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-color);
+  word-wrap: break-word;
+}
+
+
 /* Responsive design */
 @media (max-width: 768px) {
   .app-header {

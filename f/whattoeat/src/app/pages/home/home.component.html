@@ -10,6 +10,7 @@
       (isLoggedInEvent)="isLoggedInCheck($event)"
       [openLoginModalEvent]="openLoginModal"
       (savedFoodEvent)="savedFoodCheck($event)"
+      [savedFoodLoadingEvent]="savedFoodLoading"
       ></app-account>
 
     </div>
@@ -125,4 +126,32 @@
       </div>
     </ng-template>
   </div>
+
+  <!-- Saved Foods Modal -->
+<div *ngIf="isModalOpen" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Saved Foods</h2>
+      <button class="close-button" (click)="closeModal()">
+        <ion-icon name="close-outline"></ion-icon>
+      </button>
+    </div>
+    
+    <div class="modal-body">
+      <div *ngIf="savedFoods.length === 0" class="no-foods">
+        <ion-icon name="bookmark-outline"></ion-icon>
+        <p>No saved foods yet</p>
+      </div>
+      
+      <div *ngIf="savedFoods.length > 0" class="saved-foods-grid">
+        <div *ngFor="let food of savedFoods" class="saved-food-item">
+          <div class="food-thumbnail">
+            <img [src]="food.imageLink" [alt]="food.foodName">
+          </div>
+          <span class="food-name">{{food.foodName}}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 </div>

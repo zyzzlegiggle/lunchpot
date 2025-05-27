@@ -30,6 +30,7 @@ export class AccountComponent  implements OnInit {
   loginData: LoginData = {email:'', password:''} 
   signupData: SignupData = {username:'',email:'', password:''}
   isLoading = false;
+  savedFoodLoading = false;
 
   constructor(
     private authService: AuthService, 
@@ -53,7 +54,7 @@ export class AccountComponent  implements OnInit {
       const response: any = await this.authService.checkUser();
       this.username = response.user.username;
       this.isLoggedIn = true;
-      console.log(this.username)
+      await this.toastService.createToastSuccess("Log in successful");
     } catch (e:any) {
       console.log("No account")
     } finally {
@@ -154,6 +155,11 @@ export class AccountComponent  implements OnInit {
 
   savedFood() {
     this.savedFoodEvent.emit(true);
+  }
+
+  @Input() set savedFoodLoadingEvent(value: boolean) {
+     this.savedFoodLoading = value;
+      console.log(this.savedFoodLoading);
   }
 
 

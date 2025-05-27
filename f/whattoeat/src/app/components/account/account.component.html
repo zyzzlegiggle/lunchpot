@@ -29,7 +29,9 @@
               <li>
                 <button (click)="savedFood()" class="dropdown-item">
                   <ion-icon name="bookmark-outline"></ion-icon>
-                  <span>Saved Foods</span>
+                  <span *ngIf="!savedFoodLoading">Saved Foods</span>
+                  <span *ngIf="savedFoodLoading" class="spinner" style="border-top: 2px solid black !important;"></span>
+
                 </button>
               </li>
               <!-- <li>

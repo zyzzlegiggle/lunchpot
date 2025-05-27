@@ -337,7 +337,8 @@ app.post('/save-food', verifyToken, async (req, res) => {
     let food = req.body.food;
     food = food.toLowerCase()
     const email = req.user.email; //from verify token
-    await saveFood(email, food)
+    await saveFood(email, food);
+
     res.status(200).json({message: 'Success'});
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -346,10 +347,37 @@ app.post('/save-food', verifyToken, async (req, res) => {
 
 app.get('/saved-food', verifyToken, async (req, res) => {
   try {
-    console.log('saved-food')
-    const email = req.user.email; //from verify token
-    const foodHistory = await getFoodHistory(email);
-    res.status(200).json({food: foodHistory});
+    console.log('saved-food');
+
+    const email = req.user.email;
+    let foodHistory = await getFoodHistory(email);
+
+    console.log(email);
+    console.log(foodHistory);
+
+    let historyObject = { food: [] };
+
+    if (foodHistory[0] !== 'None') {
+      console.log('go');
+      console.log(foodHistory);
+
+      for (let i = 0; i < foodHistory.length; i++) {
+        let image;
+        try {
+          image = await getFoodImage(foodHistory[i]);
+        } catch (e) {
+          console.error(`Error getting image for ${foodHistory[i]}:`, e.message);
+          image = 'null';
+        }
+
+        historyObject.food.push({
+          imageLink: image,
+          foodName: foodHistory[i]
+        });
+      }
+    }
+
+    res.status(200).json(historyObject);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

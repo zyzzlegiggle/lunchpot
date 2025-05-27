@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { addIcons } from 'ionicons';
 import { FoodData } from 'src/app/interfaces/food-data';
 import { LocationData } from 'src/app/interfaces/location-data';
 import { RestaurantData } from 'src/app/interfaces/restaurant-data';
 import { ApiService } from 'src/app/services/api/api.service';
-import { locationOutline, mapOutline, refreshOutline, restaurantOutline, star, starHalf, starOutline } from 'ionicons/icons';
+import { closeOutline, locationOutline, mapOutline, refreshOutline, restaurantOutline, star, starHalf, starOutline } from 'ionicons/icons';
 import { IonAlert, IonIcon } from '@ionic/angular/standalone';
 import { AccountComponent } from 'src/app/components/account/account.component';
 import { ToastService } from 'src/app/services/toast/toast.service';
@@ -31,13 +31,16 @@ export class HomeComponent  implements OnInit, AfterViewInit {
   getRestaurant: boolean = false;
   openLoginModal = false;
   savedFoodModal = false;
+  savedFoods: any[] = [];
+  isModalOpen = false;
+  savedFoodLoading = false;
 
 
   constructor(
     private apiService: ApiService, 
     private toastService: ToastService
   ) {
-    addIcons({mapOutline, restaurantOutline, locationOutline, refreshOutline, starHalf, starOutline, star})
+    addIcons({mapOutline, restaurantOutline, locationOutline, refreshOutline, starHalf, starOutline, star,closeOutline})
    }
 
   ngOnInit() {}
@@ -61,7 +64,7 @@ export class HomeComponent  implements OnInit, AfterViewInit {
       this.isLoading = false;
       
     } catch (e: any) {
-      this.toastService.createToastError(e.message);
+      this.toastService.createToastError("Please try again");
       this.resetState();
     }
   } 
@@ -111,7 +114,7 @@ export class HomeComponent  implements OnInit, AfterViewInit {
       
     } catch (e: any) {
       console.error(e.message)
-      await this.toastService.createToastError(e.message);
+      await this.toastService.createToastError("Failed to save food, please try again.");
     }
   }
 
@@ -125,11 +128,21 @@ export class HomeComponent  implements OnInit, AfterViewInit {
   }
 
   async savedFoodCheck(value: boolean) {
-    const savedFoods: any = await this.apiService.getSavedFood();
-    console.log(savedFoods.food);
+     if (value) {
+      this.savedFoodLoading = true;
+      const savedFoods: any = await this.apiService.getSavedFood();
+      this.savedFoods = savedFoods.food|| [];
+      this.isModalOpen = true;
+      this.savedFoodLoading = false;
+      console.log(this.savedFoodLoading);
+      }
   }
 
-  
+  // Add method to close modal
+  closeModal() {
+    this.isModalOpen = false;
+  }
+    
   resetState() {
     this.foodSelected = false;
     this.restaurants = [];
