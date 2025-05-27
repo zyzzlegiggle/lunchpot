@@ -207,6 +207,43 @@ export class ApiService {
     throw new Error(e.message);
   }
   }
+
+  public async deleteFood(foodName: string) {
+    try {
+      const body = {
+        'foodName': foodName
+      };
+    return new Promise((resolve, reject) => {
+      console.log(foodName)
+      
+      this.http.post(`${this.apiUrl}/delete-food`, JSON.stringify(body), {
+      context: new HttpContext().set(USE_AUTH, true),
+      observe: 'response',
+      headers: {
+          "Content-Type": "application/json"
+        },
+      withCredentials: true
+    }).subscribe({
+      next: (response: HttpResponse<any>) => {
+        const statusCode = response.status;
+        const body = response.body;
+
+        if (statusCode === 200) {
+          resolve(body)
+        } else {
+          console.warn(`Unexpected status code: ${statusCode}`);
+          console.log(body);
+        }
+      },
+      error: (error) => {
+        reject(error);
+      }
+    });
+    })
+  } catch (e: any) {
+    throw new Error(e.message);
+  }
+  }
   
 }
 

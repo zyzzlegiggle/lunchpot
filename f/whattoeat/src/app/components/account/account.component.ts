@@ -31,6 +31,7 @@ export class AccountComponent  implements OnInit {
   signupData: SignupData = {username:'',email:'', password:''}
   isLoading = false;
   savedFoodLoading = false;
+  initLoginLoading = false;
 
   constructor(
     private authService: AuthService, 
@@ -51,6 +52,7 @@ export class AccountComponent  implements OnInit {
 
   async ngOnInit() {
     try {
+      this.initLoginLoading = true;
       const response: any = await this.authService.checkUser();
       this.username = response.user.username;
       this.isLoggedIn = true;
@@ -59,6 +61,7 @@ export class AccountComponent  implements OnInit {
       console.log("No account")
     } finally {
       this.isLoggedInEvent.emit(this.isLoggedIn);
+      this.initLoginLoading = false;
     }
     
   }

@@ -34,6 +34,9 @@ export class HomeComponent  implements OnInit, AfterViewInit {
   savedFoods: any[] = [];
   isModalOpen = false;
   savedFoodLoading = false;
+  isDeleteModalOpen = false;
+  foodToDelete: any = null;
+  isDeletingFood = false;
 
 
   constructor(
@@ -142,7 +145,45 @@ export class HomeComponent  implements OnInit, AfterViewInit {
   closeModal() {
     this.isModalOpen = false;
   }
+
+  confirmDelete(food: any, event: Event) {
+    event.stopPropagation(); // Prevent triggering the food item click
+    this.foodToDelete = food;
+    this.isDeleteModalOpen = true;
+  }
     
+  cancelDelete() {
+    this.isDeleteModalOpen = false;
+    this.foodToDelete = null;
+    this.isDeletingFood = false;
+  }
+
+  async deleteFood() {
+  if (!this.foodToDelete) return;
+  
+  this.isDeletingFood = true;
+  
+  try {
+    console.log(this.foodToDelete.foodName)
+    // Replace this with your actual delete logic
+    await this.apiService.deleteFood(this.foodToDelete.foodName);
+
+    this.toastService.createToastSuccess(`${this.foodToDelete.foodName} removed.`);
+    
+    // Remove from local array
+    this.savedFoods = this.savedFoods.filter(food => food.foodName !== this.foodToDelete.foodName);
+    
+    // Close modal
+    this.cancelDelete();
+    
+  } catch (error) {
+    console.error('Error deleting food:', error);
+    // Handle error (show toast, etc.)
+    this.toastService.createToastError('Error removing food. Please try again.')
+  } finally {
+    this.isDeletingFood = false;
+  }
+}
   resetState() {
     this.foodSelected = false;
     this.restaurants = [];

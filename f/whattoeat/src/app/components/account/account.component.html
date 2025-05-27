@@ -2,8 +2,14 @@
         <!-- Show when user is NOT logged in -->
         <div *ngIf="!isLoggedIn" class="auth-buttons">
            <button (click)="openLoginModal()" class="auth-button login-button">
-              <ion-icon name="log-in-outline"></ion-icon>
-              Sign In
+            <span *ngIf="initLoginLoading" class="spinner"></span>
+              
+              <span *ngIf="!initLoginLoading">
+                <ion-icon name="log-in-outline"></ion-icon>
+                Sign In
+              </span>
+              
+
             </button>
         </div>
         

@@ -131,6 +131,7 @@
 <div *ngIf="isModalOpen" class="modal-overlay" (click)="closeModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <div class="modal-header">
+
       <h2>Saved Foods</h2>
       <button class="close-button" (click)="closeModal()">
         <ion-icon name="close-outline"></ion-icon>
@@ -145,12 +146,34 @@
       
       <div *ngIf="savedFoods.length > 0" class="saved-foods-grid">
         <div *ngFor="let food of savedFoods" class="saved-food-item">
+          <button class="delete-button" (click)="confirmDelete(food, $event)">
+            <ion-icon name="close-outline"></ion-icon>
+          </button>
           <div class="food-thumbnail">
             <img [src]="food.imageLink" [alt]="food.foodName">
           </div>
           <span class="food-name">{{food.foodName}}</span>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="isDeleteModalOpen" class="modal-overlay" (click)="cancelDelete()">
+  <div class="delete-modal-content" (click)="$event.stopPropagation()">
+    <div class="delete-modal-header">
+      <h3>Delete Food</h3>
+    </div>
+    <div class="delete-modal-body">
+      <p>Are you sure you want to remove <strong>{{foodToDelete?.foodName}}</strong> from your saved foods?</p>
+    </div>
+    <div class="delete-modal-actions">
+      <button class="cancel-btn" (click)="cancelDelete()">Cancel</button>
+      <button class="delete-btn" (click)="deleteFood()" [disabled]="isDeletingFood">
+        <span *ngIf="!isDeletingFood">Delete</span>
+        <div *ngIf="isDeletingFood" class="spinner"></div>
+      </button>
     </div>
   </div>
 </div>

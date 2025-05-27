@@ -537,6 +537,116 @@ h1 {
   word-wrap: break-word;
 }
 
+/* Delete button on saved food items */
+.saved-food-item {
+  position: relative;
+}
+
+.delete-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: rgba(255, 107, 107, 0.9);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition-speed);
+  z-index: 10;
+}
+
+.delete-button ion-icon {
+  font-size: 14px;
+  color: white;
+}
+
+.saved-food-item:hover .delete-button {
+  opacity: 1;
+}
+
+.delete-button:hover {
+  background: var(--primary-dark);
+}
+
+/* Delete confirmation modal */
+.delete-modal-content {
+  background: var(--card-background);
+  border-radius: var(--border-radius);
+  max-width: 400px;
+  width: 90%;
+  box-shadow: var(--hover-shadow);
+  overflow: hidden;
+}
+
+.delete-modal-header {
+  padding: 20px 20px 10px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.delete-modal-header h3 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 1.3rem;
+}
+
+.delete-modal-body {
+  padding: 20px;
+}
+
+.delete-modal-body p {
+  margin: 0;
+  color: var(--text-color);
+  line-height: 1.5;
+}
+
+.delete-modal-actions {
+  display: flex;
+  gap: 10px;
+  padding: 0 20px 20px;
+  justify-content: flex-end;
+}
+
+.cancel-btn, .delete-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--button-radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all var(--transition-speed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 80px;
+}
+
+.cancel-btn {
+  background: #e9ecef;
+  color: var(--text-color);
+}
+
+.cancel-btn:hover {
+  background: #dee2e6;
+}
+
+.delete-btn {
+  background: var(--primary-color);
+  color: white;
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: var(--primary-dark);
+}
+
+.delete-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 
 /* Responsive design */
 @media (max-width: 768px) {
@@ -561,6 +671,10 @@ h1 {
   
   .food-icon {
     font-size: 2.5rem;
+  }
+
+  .delete-button {
+  opacity: 1;
   }
   
 }

@@ -8,6 +8,7 @@ const cors = require('cors');
 const { getFoodImage, getFoodHistory, run, insertVector, validateLogin, validateSignup, saveFood } = require('./util');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { FieldValue } = require('@google-cloud/firestore');
 const firestore = require('@google-cloud/firestore');
 const { v4: uuidv4 } = require('uuid');
 
@@ -56,6 +57,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 const verifyToken = (req, res, next) => {
   try {
     let token = req.headers['authorization'];
+    console.log(req);
     token = token?.split(" ")[1]; // remove bearer
     console.log(token);
     if (!token) {
@@ -378,6 +380,23 @@ app.get('/saved-food', verifyToken, async (req, res) => {
     }
 
     res.status(200).json(historyObject);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/delete-food', verifyToken, async (req, res) => {
+  try {
+    console.log('delete-food');
+    console.log(req.body.foodName);
+    const foodName = req.body.foodName;
+    const email = req.user.email;
+    const userRef = db.collection('whattoeat_users').doc(email);
+    const removeRes = await userRef.update({
+      food: FieldValue.arrayRemove(foodName)
+    })
+
+    res.status(200).json({message: 'Success'});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
