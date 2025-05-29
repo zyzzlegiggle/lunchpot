@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'whattoeat',
+  appId: 'com.chupchip.app',
+  appName: 'chupchip',
   webDir: 'www'
 };
 
