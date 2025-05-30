@@ -1,8 +1,8 @@
-<div class="page-container">
+<div class="page-container" >
   <div class="app-header">
     <div class="header-content">
       <div class="logo-section">
-        <h1>What to Eat</h1>
+        <h1>Lunchpot</h1>
         <p class="tagline">Discover your next delicious meal</p>
       </div>
       
@@ -16,7 +16,7 @@
     </div>
   </div>
   
-  <div class="content-container">
+  <div class="content-container" (click)="closeModal()">
     <div class="main-action-area">
       <button class="food-button pulse-animation" (click)="onClick()" [class.selected]="foodSelected">
         <span *ngIf="!isLoading && !foodSelected" class="initial-text">

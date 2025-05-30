@@ -16,7 +16,7 @@ import { ToastService } from 'src/app/services/toast/toast.service';
   imports: [CommonModule, IonIcon, AccountComponent],
   
 })
-export class HomeComponent  implements OnInit, AfterViewInit {
+export class HomeComponent  implements OnInit{
   selectedFood: FoodData = {name:'', imageLink:''};
   isLoading: boolean = false;
   foodSelected: boolean = false;
@@ -46,17 +46,17 @@ export class HomeComponent  implements OnInit, AfterViewInit {
     addIcons({mapOutline, restaurantOutline, locationOutline, refreshOutline, starHalf, starOutline, star,closeOutline})
    }
 
-  ngOnInit() {}
-
-  async ngAfterViewInit() {
+  async ngOnInit() {
     this.location = await this.apiService.getLocation();
   }
 
   public async onClick() {
     try{
+      console.log('main button clicked');
       if (this.isLoading) return;
 
       if (!this.location.country) this.location = await this.apiService.getLocation();
+      
 
       this.resetState();
   
@@ -68,6 +68,7 @@ export class HomeComponent  implements OnInit, AfterViewInit {
       
     } catch (e: any) {
       this.toastService.createToastError("Please try again");
+      console.error(e.message)
       this.resetState();
     }
   } 
@@ -143,6 +144,7 @@ export class HomeComponent  implements OnInit, AfterViewInit {
 
   // Add method to close modal
   closeModal() {
+    console.log('close modal');
     this.isModalOpen = false;
   }
 

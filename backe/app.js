@@ -20,7 +20,7 @@ const isProd = process.env.NODE_ENV === 'production';
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: 'http://localhost:8100',
+  origin: ['https://lunchpot'],
   credentials: true
 }));
 app.use(cookieParser());
@@ -80,8 +80,8 @@ const verifyToken = (req, res, next) => {
 
 // assign before get email
 const assignAnonymousId = (req, res, next) => {
-  let anonId = req.cookies?.anonId;
-
+  let anonId = req.cookies?.anonId || req.body.anonId;
+  console.log(anonId);
   if (!anonId) {
     anonId = uuidv4(); // Generate new UUID
     res.cookie('anonId', anonId, { 
@@ -122,6 +122,7 @@ const getEmail = (req, res, next) => {
 app.post('/', assignAnonymousId, getEmail, async (req, res) => {
   try {
     const location = req.body.location;
+    console.log(location);
     const sessionKey = req.user?.email === 'anonymous' ? req.anonId : req.user.email;;
     const now = Date.now();
 
@@ -133,7 +134,9 @@ app.post('/', assignAnonymousId, getEmail, async (req, res) => {
       });
     } else {
       const session = eatSession.get(sessionKey);
-      session.foodDeclined.push(session.lastRecommended);
+      if (!session.foodDeclined.includes(session.lastRecommended.toLowerCase())) {
+        session.foodDeclined.push(session.lastRecommended.toLowerCase());
+      }
       session.lastFetch = now;
     }
     
@@ -191,7 +194,8 @@ app.post('/', assignAnonymousId, getEmail, async (req, res) => {
     const imageLink = await getFoodImage(food);
     const output = {
       food: food,
-      imageLink: imageLink
+      imageLink: imageLink,
+      anonId: req.anonId
     }
     res.status(200).send(output)
   } catch (error) {
@@ -403,148 +407,148 @@ app.post('/delete-food', verifyToken, async (req, res) => {
 });
 
 
-app.post('/createindex', async (req, res) => {
-    try {
-      const indexName = req.body.indexName
-      const body = {
-        "name": indexName,
-        "description": "some index description (use bge-small-en-v1.5)",
-        "config": {
-            "dimensions": 384,
-            "metric": "euclidean"
-        },
-      }
-      const response = await fetch(
-          `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/vectorize/v2/indexes`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${process.env.CLOUDFLARE_API_KEY_VECTORIZE}`
-            },
-            method: "POST",
-            body: JSON.stringify(body),
-          }
-        );
+// app.post('/createindex', async (req, res) => {
+//     try {
+//       const indexName = req.body.indexName
+//       const body = {
+//         "name": indexName,
+//         "description": "some index description (use bge-small-en-v1.5)",
+//         "config": {
+//             "dimensions": 384,
+//             "metric": "euclidean"
+//         },
+//       }
+//       const response = await fetch(
+//           `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/vectorize/v2/indexes`,
+//           {
+//             headers: {
+//               "Content-Type": "application/json",
+//               "Authorization": `Bearer ${process.env.CLOUDFLARE_API_KEY_VECTORIZE}`
+//             },
+//             method: "POST",
+//             body: JSON.stringify(body),
+//           }
+//         );
 
-      const result = await response.json();
-      res.send(result);
-    } catch (error) {
-      res.status(404).json({ message: error.message });
-    }
-})
+//       const result = await response.json();
+//       res.send(result);
+//     } catch (error) {
+//       res.status(404).json({ message: error.message });
+//     }
+// })
 
-app.get('/getindex', async (req, res) => {
+// app.get('/getindex', async (req, res) => {
 
-    const response = await fetch(
-        `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/vectorize/v2/indexes`,
-        {
-          headers: {
-            "Authorization": `Bearer ${process.env.CLOUDFLARE_API_KEY_VECTORIZE}`
-          },
-          method: "GET",
-        }
-      );
+//     const response = await fetch(
+//         `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/vectorize/v2/indexes`,
+//         {
+//           headers: {
+//             "Authorization": `Bearer ${process.env.CLOUDFLARE_API_KEY_VECTORIZE}`
+//           },
+//           method: "GET",
+//         }
+//       );
 
-    const result = await response.json();
-    res.send(result);
-})
+//     const result = await response.json();
+//     res.send(result);
+// })
 
-app.delete('/deleteindex', async (req, res) => {
-    try {
-      const indexName = req.body.indexName;
-      const response = await fetch(
-          `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/vectorize/v2/indexes/${indexName}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${process.env.CLOUDFLARE_API_KEY_VECTORIZE}`
-            },
-            method: "DELETE",
-          }
-        );
+// app.delete('/deleteindex', async (req, res) => {
+//     try {
+//       const indexName = req.body.indexName;
+//       const response = await fetch(
+//           `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/vectorize/v2/indexes/${indexName}`,
+//           {
+//             headers: {
+//               "Content-Type": "application/json",
+//               "Authorization": `Bearer ${process.env.CLOUDFLARE_API_KEY_VECTORIZE}`
+//             },
+//             method: "DELETE",
+//           }
+//         );
 
-      const result = await response.json();
-      res.send(result);
-    } catch (e) {
-      res.status(404).json({ message: error.message});
-    }
-})
+//       const result = await response.json();
+//       res.send(result);
+//     } catch (e) {
+//       res.status(404).json({ message: error.message});
+//     }
+// })
 
-app.post('/embed', async (req, res) => {
-    try {
-      model = "@cf/baai/bge-small-en-v1.5";
-      const stories = [
-        "This is a story about an orange cloud",
-        "This is a story about a llama",
-        "This is a story about a hugging emoji",
-      ];
-      const body = {
-        "text": stories
-      }
-      let embeddings = await run(model, body);
-      embeddings = embeddings.result;
+// app.post('/embed', async (req, res) => {
+//     try {
+//       model = "@cf/baai/bge-small-en-v1.5";
+//       const stories = [
+//         "This is a story about an orange cloud",
+//         "This is a story about a llama",
+//         "This is a story about a hugging emoji",
+//       ];
+//       const body = {
+//         "text": stories
+//       }
+//       let embeddings = await run(model, body);
+//       embeddings = embeddings.result;
       
-      // data vectors
-      let vectors = [];
-      const namespaces = [
-        "orange",
-        "llama",
-        "hugging emoji"
-      ]
-      let id = 1;
-      embeddings.data.forEach((vector) => {
-        vectors.push({
-          id: `${id}`,
-          values: vector,
-          namespace: namespaces[id-1]
-        })
-        id++;
-      })
+//       // data vectors
+//       let vectors = [];
+//       const namespaces = [
+//         "orange",
+//         "llama",
+//         "hugging emoji"
+//       ]
+//       let id = 1;
+//       embeddings.data.forEach((vector) => {
+//         vectors.push({
+//           id: `${id}`,
+//           values: vector,
+//           namespace: namespaces[id-1]
+//         })
+//         id++;
+//       })
       
-      //store the vectors
-      res.send(await insertVector("demo-index", vectors));
-    } catch (error) {
-      res.status(404).json({ message: error.message });
-    }
-})
+//       //store the vectors
+//       res.send(await insertVector("demo-index", vectors));
+//     } catch (error) {
+//       res.status(404).json({ message: error.message });
+//     }
+// })
 
-app.get('/queryindex', async (req, res) => {
-    try {
-      model = "@cf/baai/bge-small-en-v1.5";
-      const stories = [
-        "This is a story about an orange cloud",
-        "This is a story about a llama",
-        "This is a story about a hugging emoji",
-      ];
-      const body = {
-        "text": stories
-      }
-      let embeddings = await run(model, body);
-      embeddings = embeddings.result;
+// app.get('/queryindex', async (req, res) => {
+//     try {
+//       model = "@cf/baai/bge-small-en-v1.5";
+//       const stories = [
+//         "This is a story about an orange cloud",
+//         "This is a story about a llama",
+//         "This is a story about a hugging emoji",
+//       ];
+//       const body = {
+//         "text": stories
+//       }
+//       let embeddings = await run(model, body);
+//       embeddings = embeddings.result;
       
-      // data vectors
-      let vectors = [];
-      const namespaces = [
-        "orange",
-        "llama",
-        "hugging emoji"
-      ]
-      let id = 1;
-      embeddings.data.forEach((vector) => {
-        vectors.push({
-          id: `${id}`,
-          values: vector,
-          namespace: namespaces[id-1]
-        })
-        id++;
-      })
+//       // data vectors
+//       let vectors = [];
+//       const namespaces = [
+//         "orange",
+//         "llama",
+//         "hugging emoji"
+//       ]
+//       let id = 1;
+//       embeddings.data.forEach((vector) => {
+//         vectors.push({
+//           id: `${id}`,
+//           values: vector,
+//           namespace: namespaces[id-1]
+//         })
+//         id++;
+//       })
       
-      //store the vectors
-      res.send(await insertVector("demo-index", vectors));
-    } catch (error) {
-      res.status(404).json({ message: error.message });
-    }
-})
+//       //store the vectors
+//       res.send(await insertVector("demo-index", vectors));
+//     } catch (error) {
+//       res.status(404).json({ message: error.message });
+//     }
+// })
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

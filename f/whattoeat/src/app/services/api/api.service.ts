@@ -6,6 +6,8 @@ import { LoginData } from 'src/app/interfaces/login-data';
 import { RestaurantData } from 'src/app/interfaces/restaurant-data';
 import { environment } from 'src/environments/environment';
 import { USE_AUTH } from '../auth/auth.interceptor';
+import { Geolocation } from '@capacitor/geolocation';
+import { LocalStorageService } from '../local-storage/local-storage.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,15 +15,23 @@ import { USE_AUTH } from '../auth/auth.interceptor';
 export class ApiService {
   private apiUrl = environment.apiUrl;
   private http = inject(HttpClient);
-  constructor() { }
+  constructor(private localService: LocalStorageService) { }
 
   public async getFood(city:string, country: string) {
     try {
+      let anonId = '';
+      try {
+        anonId = this.localService.getItem('anonId') || '';
+      } catch (e) {
+        console.warn('anonId not found in localService:', e);
+        anonId = '';
+      }
       const body = {
         "location": {
           "country": country,
           "city": city
-        }
+        },
+        anonId: anonId
       }
       
       return new Promise((resolve, reject) => {
@@ -44,6 +54,7 @@ export class ApiService {
             imageLink: body.imageLink
           }
           console.log(foodData)
+          this.localService.setItem('anonId', body.anonId);
           resolve(foodData);
         } else {
           console.warn(`Unexpected status code: ${statusCode}`);
@@ -69,7 +80,8 @@ export class ApiService {
         }
       })
       console.log(countryData);
-      const geolocationData = await this.getCurrentPosition();
+      const geolocationData = await Geolocation.getCurrentPosition();
+      console.log(`location fetched ${geolocationData.coords.latitude.toString()}, ${geolocationData.coords.longitude.toString()}`)
       return {
         country: countryData.country_name,
         city: countryData.city,
@@ -82,7 +94,8 @@ export class ApiService {
     }
   }
 
-  private getCurrentPosition(): Promise<GeolocationPosition> {
+  // uses web API (doesnt work in capacitor)
+  private async getCurrentPosition(): Promise<GeolocationPosition> {
     return new Promise((resolve, reject) => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(resolve, reject);

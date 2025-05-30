@@ -4,12 +4,14 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class LocalStorageService {
-  storedKeys = ['token']
+  storedKeys = [
+    'token',
+    'anonId' // capacitor cookie does not work
+  ]
   
   constructor() { }
 
   public setItem(key: string, value: any){
-    key = key.toLowerCase();
     if (!this.storedKeys.includes(key)) {
       throw new Error(`Local storage key does not exist`);
     }
@@ -17,7 +19,6 @@ export class LocalStorageService {
   }
 
   public getItem(key: string) {
-    key = key.toLowerCase();
     if (!this.storedKeys.includes(key)) {
       throw new Error(`Local storage key does not exist`);
     }
@@ -25,7 +26,6 @@ export class LocalStorageService {
   }
 
   public removeItem(key: string) {
-    key = key.toLowerCase();
     if (!this.storedKeys.includes(key)) {
       throw new Error(`Local storage key does not exist`);
     }

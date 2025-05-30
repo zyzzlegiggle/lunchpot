@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { AfterViewInit, Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonIcon, ToastController } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -37,7 +37,8 @@ export class AccountComponent  implements OnInit {
     private authService: AuthService, 
     private accountValidator: AccountValidatorService,
     private localService: LocalStorageService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private eRef: ElementRef
   ) { 
     addIcons({
       chevronDownOutline, 
@@ -69,6 +70,10 @@ export class AccountComponent  implements OnInit {
   
   toggleUserMenu() {
     this.showUserMenu = !this.showUserMenu;
+  }
+
+  closeUserMenu() {
+    this.showUserMenu = false;
   }
 
    openLoginModal() {
@@ -165,5 +170,12 @@ export class AccountComponent  implements OnInit {
       console.log(this.savedFoodLoading);
   }
 
+
+   @HostListener('document:click', ['$event'])
+  clickOutside(event: MouseEvent) {
+    if (!this.eRef.nativeElement.contains(event.target)) {
+      this.showUserMenu = false;
+    }
+  }
 
 }
