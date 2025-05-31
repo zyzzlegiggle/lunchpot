@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'www',
   server: {
     hostname: 'lunchpot',
-    androidScheme: 'http' // change to https in production
+    androidScheme: 'https' // change to https in production
   },
 };
 

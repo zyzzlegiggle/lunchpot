@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: "http://192.168.66.47:3000",
+  apiUrl: "https://lunchpot-backend-156367060017.us-east4.run.app",
   countryApi: "https://ipapi.co/json/"
 };
