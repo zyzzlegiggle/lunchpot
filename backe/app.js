@@ -20,7 +20,7 @@ const isProd = process.env.NODE_ENV === 'production';
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: ['https://lunchpot'],
+  origin: ['https://lunchpot' ],
   credentials: true
 }));
 app.use(cookieParser());

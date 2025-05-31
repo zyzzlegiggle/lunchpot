@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  apiUrl: "http://192.168.66.47:3000", //laptop ip
-  countryApi: "https://ipapi.co/json/"
+  apiUrl: "http://localhost:3000", //laptop ip
+  countryApi: "https://ip-api.com/json/"
 
 };
 

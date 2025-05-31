@@ -73,6 +73,7 @@ export class ApiService {
 
   public async getLocation(): Promise<LocationData> {
     try {
+      console.log('getlocation triggered')
       let countryData = {country_name : '', city: ''};
       this.http.get(environment.countryApi).subscribe({
         next: (data: any) => {

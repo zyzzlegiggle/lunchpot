@@ -16,7 +16,7 @@
     </div>
   </div>
   
-  <div class="content-container" (click)="closeModal()">
+  <div class="content-container">
     <div class="main-action-area">
       <button class="food-button pulse-animation" (click)="onClick()" [class.selected]="foodSelected">
         <span *ngIf="!isLoading && !foodSelected" class="initial-text">
@@ -52,10 +52,7 @@
           <ion-icon name="location-outline"></ion-icon>
           <span>Find Restaurants</span>
         </button>
-        <button class="action-button try-again" (click)="resetButton()">
-          <ion-icon name="refresh-outline"></ion-icon>
-          <span>Try Again</span>
-        </button>
+        
         <button class="action-button save-food" (click)="saveFood()">
           <ion-icon name="bookmark-outline"></ion-icon>
           <span>Save Food</span>
@@ -106,7 +103,7 @@
                 Status: 
                 <span class="status-color">Open</span>
               </div>
-              <a [href]="'https://www.google.com/maps/place/?q=place_id:' + restaurant.placeId" 
+              <a [href]="'https://www.google.com/maps/place/?q=:' + restaurant.name" 
                 target="_blank" 
                 class="view-button">
                 <ion-icon name="map-outline"></ion-icon>
@@ -145,14 +142,14 @@
       </div>
       
       <div *ngIf="savedFoods.length > 0" class="saved-foods-grid">
-        <div *ngFor="let food of savedFoods" class="saved-food-item">
+        <div *ngFor="let food of savedFoods" class="saved-food-item" (click)="chooseSavedFood(food)">
           <button class="delete-button" (click)="confirmDelete(food, $event)">
             <ion-icon name="close-outline"></ion-icon>
           </button>
           <div class="food-thumbnail">
-            <img [src]="food.imageLink" [alt]="food.foodName">
+            <img [src]="food.imageLink" [alt]="food.name">
           </div>
-          <span class="food-name">{{food.foodName}}</span>
+          <span class="food-name">{{food.name}}</span>
         </div>
       </div>
     </div>
@@ -166,7 +163,7 @@
       <h3>Delete Food</h3>
     </div>
     <div class="delete-modal-body">
-      <p>Are you sure you want to remove <strong>{{foodToDelete?.foodName}}</strong> from your saved foods?</p>
+      <p>Are you sure you want to remove <strong>{{foodToDelete?.name}}</strong> from your saved foods?</p>
     </div>
     <div class="delete-modal-actions">
       <button class="cancel-btn" (click)="cancelDelete()">Cancel</button>

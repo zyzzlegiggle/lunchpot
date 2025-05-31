@@ -1,8 +1,8 @@
 {
   "name": "whattoeat",
-  "version": "0.0.1",
-  "author": "Ionic Framework",
-  "homepage": "https://ionicframework.com/",
+  "version": "0.0.2",
+  "author": "zyzzlegiggle",
+  "homepage": "",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

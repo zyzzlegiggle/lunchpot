@@ -5,15 +5,15 @@ import { FoodData } from 'src/app/interfaces/food-data';
 import { LocationData } from 'src/app/interfaces/location-data';
 import { RestaurantData } from 'src/app/interfaces/restaurant-data';
 import { ApiService } from 'src/app/services/api/api.service';
-import { closeOutline, locationOutline, mapOutline, refreshOutline, restaurantOutline, star, starHalf, starOutline } from 'ionicons/icons';
-import { IonAlert, IonIcon } from '@ionic/angular/standalone';
+import { closeOutline, locationOutline, mapOutline, refreshOutline, restaurantOutline, save, star, starHalf, starOutline } from 'ionicons/icons';
+import { IonAlert, IonContent, IonHeader, IonIcon } from '@ionic/angular/standalone';
 import { AccountComponent } from 'src/app/components/account/account.component';
 import { ToastService } from 'src/app/services/toast/toast.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  imports: [CommonModule, IonIcon, AccountComponent],
+  imports: [CommonModule, IonIcon, AccountComponent, IonContent],
   
 })
 export class HomeComponent  implements OnInit{
@@ -31,23 +31,24 @@ export class HomeComponent  implements OnInit{
   getRestaurant: boolean = false;
   openLoginModal = false;
   savedFoodModal = false;
-  savedFoods: any[] = [];
+  savedFoods: FoodData[] = [];
   isModalOpen = false;
   savedFoodLoading = false;
   isDeleteModalOpen = false;
-  foodToDelete: any = null;
+  foodToDelete: FoodData ={name:'', imageLink:''};
   isDeletingFood = false;
 
 
   constructor(
     private apiService: ApiService, 
-    private toastService: ToastService
+    private toastService: ToastService,
+    
   ) {
     addIcons({mapOutline, restaurantOutline, locationOutline, refreshOutline, starHalf, starOutline, star,closeOutline})
    }
 
   async ngOnInit() {
-    this.location = await this.apiService.getLocation();
+    // this.location = await this.apiService.getLocation();
   }
 
   public async onClick() {
@@ -55,7 +56,7 @@ export class HomeComponent  implements OnInit{
       console.log('main button clicked');
       if (this.isLoading) return;
 
-      if (!this.location.country) this.location = await this.apiService.getLocation();
+      if (this.location.country === '') this.location = await this.apiService.getLocation();
       
 
       this.resetState();
@@ -73,15 +74,13 @@ export class HomeComponent  implements OnInit{
     }
   } 
 
-  resetButton() {
-    this.resetState();
-  }
-
   public async findRestaurants() {
     try {
-      if (!this.foodSelected || !this.selectedFood.name || !this.location.latitude || !this.location.longitude || this.getRestaurant) {
+      if (!this.foodSelected || !this.selectedFood.name || this.getRestaurant) {
       return;
       }
+
+      if (this.location.country === '') this.location = await this.apiService.getLocation();
 
       this.isLoading = true;
 
@@ -108,11 +107,11 @@ export class HomeComponent  implements OnInit{
         });
         return; // open login modal
       }
-      const foodName = this.selectedFood.name;
+      const name = this.selectedFood.name;
       this.isLoading = true
-      await this.apiService.saveFood(foodName)
+      await this.apiService.saveFood(name)
       .then (async _ => {
-        await this.toastService.createToastSuccess(`${foodName} is saved`);
+        await this.toastService.createToastSuccess(`${name} is saved`);
         this.isLoading = false;
       })
       
@@ -134,8 +133,19 @@ export class HomeComponent  implements OnInit{
   async savedFoodCheck(value: boolean) {
      if (value) {
       this.savedFoodLoading = true;
-      const savedFoods: any = await this.apiService.getSavedFood();
-      this.savedFoods = savedFoods.food|| [];
+      let savedFood: any = await this.apiService.getSavedFood();
+      savedFood = savedFood.food|| [];
+      console.log(savedFood)
+      if (savedFood.length >0) {
+        savedFood.forEach((food: any) => {
+          this.savedFoods.push({
+            name: food.foodName,
+            imageLink: food.imageLink
+          })
+          
+        });
+        console.log(this.savedFoods)
+      }
       this.isModalOpen = true;
       this.savedFoodLoading = false;
       console.log(this.savedFoodLoading);
@@ -156,7 +166,7 @@ export class HomeComponent  implements OnInit{
     
   cancelDelete() {
     this.isDeleteModalOpen = false;
-    this.foodToDelete = null;
+    this.foodToDelete = {name:'', imageLink:''}
     this.isDeletingFood = false;
   }
 
@@ -166,14 +176,14 @@ export class HomeComponent  implements OnInit{
   this.isDeletingFood = true;
   
   try {
-    console.log(this.foodToDelete.foodName)
+    console.log(this.foodToDelete.name)
     // Replace this with your actual delete logic
-    await this.apiService.deleteFood(this.foodToDelete.foodName);
+    await this.apiService.deleteFood(this.foodToDelete.name);
 
-    this.toastService.createToastSuccess(`${this.foodToDelete.foodName} removed.`);
+    this.toastService.createToastSuccess(`${this.foodToDelete.name} removed.`);
     
     // Remove from local array
-    this.savedFoods = this.savedFoods.filter(food => food.foodName !== this.foodToDelete.foodName);
+    this.savedFoods = this.savedFoods.filter(food => food.name !== this.foodToDelete.name);
     
     // Close modal
     this.cancelDelete();
@@ -186,6 +196,14 @@ export class HomeComponent  implements OnInit{
     this.isDeletingFood = false;
   }
 }
+
+  chooseSavedFood(food: FoodData) {
+    console.log( food)
+    this.resetState();
+    this.selectedFood = food;
+    this.foodSelected = true;
+    this.closeModal();
+  }
   resetState() {
     this.foodSelected = false;
     this.restaurants = [];

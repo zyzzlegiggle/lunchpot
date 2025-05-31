@@ -681,9 +681,6 @@ h1 {
 }
 
 @media (max-width: 600px) {
-  .page-container {
-    padding: 15px;
-  }
   
   h1 {
     font-size: 2rem;
