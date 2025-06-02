@@ -1,20 +1,5 @@
 <div class="page-container" >
-  <div class="app-header">
-    <div class="header-content">
-      <div class="logo-section">
-        <h1>Lunchpot</h1>
-        <p class="tagline">Discover your next delicious meal</p>
-      </div>
-      
-      <app-account 
-      (isLoggedInEvent)="isLoggedInCheck($event)"
-      [openLoginModalEvent]="openLoginModal"
-      (savedFoodEvent)="savedFoodCheck($event)"
-      [savedFoodLoadingEvent]="savedFoodLoading"
-      ></app-account>
-
-    </div>
-  </div>
+  
   
   <div class="content-container">
     <div class="main-action-area">
@@ -174,4 +159,21 @@
     </div>
   </div>
 </div>
+
+<div class="app-footer">
+    <div class="footer-content">
+      <div class="logo-section">
+        <h1>Lunchpot</h1>
+        <p class="tagline">Discover your next delicious meal</p>
+      </div>
+      
+      <app-account 
+      (isLoggedInEvent)="isLoggedInCheck($event)"
+      [openLoginModalEvent]="openLoginModal"
+      (savedFoodEvent)="savedFoodCheck($event)"
+      [savedFoodLoadingEvent]="savedFoodLoading"
+      ></app-account>
+
+    </div>
+  </div>
 </div>

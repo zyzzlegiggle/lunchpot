@@ -20,15 +20,15 @@ const isProd = process.env.NODE_ENV === 'production';
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: ['https://lunchpot' ],
+  origin: ['https://lunchpot', 'http://localhost:8100' ],
   credentials: true
 }));
 app.use(cookieParser());
 
 // background cleanup (this run every 1 minute)
 setInterval(async () => {
-  console.log("background session run");
-  console.log(eatSession);
+  
+  
   const now = Date.now();
   for (const [email, session] of eatSession.entries()) {
     if (now - session.lastFetch > 10 * 60 * 1000) {
@@ -39,7 +39,7 @@ setInterval(async () => {
         saveFood(email, eatSession.get(email).lastRecommended)
       }
       eatSession.delete(email); // remove if there is no activity after 10 minutes
-      console.log(`Session for ${email} has been removed due to inactivity.`);
+      
     }
   }
 }, 60 * 1000)
@@ -57,9 +57,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret';
 const verifyToken = (req, res, next) => {
   try {
     let token = req.headers['authorization'];
-    console.log(req);
+    
     token = token?.split(" ")[1]; // remove bearer
-    console.log(token);
+    
     if (!token) {
       
       throw new Error('Unauthorized')
@@ -81,7 +81,7 @@ const verifyToken = (req, res, next) => {
 // assign before get email
 const assignAnonymousId = (req, res, next) => {
   let anonId = req.cookies?.anonId || req.body.anonId;
-  console.log(anonId);
+  
   if (!anonId) {
     anonId = uuidv4(); // Generate new UUID
     res.cookie('anonId', anonId, { 
@@ -122,7 +122,7 @@ const getEmail = (req, res, next) => {
 app.post('/', assignAnonymousId, getEmail, async (req, res) => {
   try {
     const location = req.body.location;
-    console.log(location);
+    
     const sessionKey = req.user?.email === 'anonymous' ? req.anonId : req.user.email;;
     const now = Date.now();
 
@@ -141,7 +141,7 @@ app.post('/', assignAnonymousId, getEmail, async (req, res) => {
     }
     
     let foodHistory = await getFoodHistory(sessionKey)
-    console.log(foodHistory)
+    
     let sessionData = eatSession.get(sessionKey);
     let foodDeclined = sessionData.foodDeclined;
     foodHistory = (foodHistory.length >= 2) ? foodHistory.join(", "): foodHistory;
@@ -250,7 +250,7 @@ app.post('/restaurants', async (req, res) => {
       // delete photos array containing photo data (not link)
       delete result.places[i].photos; // replace 'unwantedKey' with the actual property name
     }
-    console.log(result.places);
+    
     res.send(result);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -298,7 +298,7 @@ app.post('/login', async (req, res) => {
     
     const userRef = db.collection('whattoeat_users').doc(email);
     const doc = await userRef.get();
-    console.log(doc);
+    
 
     if (!doc.exists) {
       return res.status(401).json({ message: 'Invalid credentials' });
@@ -339,7 +339,7 @@ app.get('/user', verifyToken, async (req, res) => {
 
 app.post('/save-food', verifyToken, async (req, res) => {
   try {
-    console.log('save-food')
+    
     let food = req.body.food;
     food = food.toLowerCase()
     const email = req.user.email; //from verify token
@@ -353,19 +353,19 @@ app.post('/save-food', verifyToken, async (req, res) => {
 
 app.get('/saved-food', verifyToken, async (req, res) => {
   try {
-    console.log('saved-food');
+    
 
     const email = req.user.email;
     let foodHistory = await getFoodHistory(email);
 
-    console.log(email);
-    console.log(foodHistory);
+    
+    
 
     let historyObject = { food: [] };
 
     if (foodHistory[0] !== 'None') {
-      console.log('go');
-      console.log(foodHistory);
+      
+      
 
       for (let i = 0; i < foodHistory.length; i++) {
         let image;
@@ -391,8 +391,8 @@ app.get('/saved-food', verifyToken, async (req, res) => {
 
 app.post('/delete-food', verifyToken, async (req, res) => {
   try {
-    console.log('delete-food');
-    console.log(req.body.foodName);
+    
+    
     const foodName = req.body.foodName;
     const email = req.user.email;
     const userRef = db.collection('whattoeat_users').doc(email);
@@ -551,5 +551,5 @@ app.post('/delete-food', verifyToken, async (req, res) => {
 // })
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  
 })

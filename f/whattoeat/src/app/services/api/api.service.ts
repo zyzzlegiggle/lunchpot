@@ -48,17 +48,17 @@ export class ApiService {
         const body: any = response.body;
 
         if (statusCode === 200) {
-          console.log('User check successful', body);
+          
           const foodData: FoodData =  {
             name: body.food,
             imageLink: body.imageLink
           }
-          console.log(foodData)
+          
           this.localService.setItem('anonId', body.anonId);
           resolve(foodData);
         } else {
           console.warn(`Unexpected status code: ${statusCode}`);
-          console.log(body);
+          
         }
       },
       error: (error) => {
@@ -73,16 +73,16 @@ export class ApiService {
 
   public async getLocation(): Promise<LocationData> {
     try {
-      console.log('getlocation triggered')
+      
       let countryData = {country_name : '', city: ''};
       this.http.get(environment.countryApi).subscribe({
         next: (data: any) => {
           countryData = data;
         }
       })
-      console.log(countryData);
+      
       const geolocationData = await Geolocation.getCurrentPosition();
-      console.log(`location fetched ${geolocationData.coords.latitude.toString()}, ${geolocationData.coords.longitude.toString()}`)
+      
       return {
         country: countryData.country_name,
         city: countryData.city,
@@ -124,14 +124,14 @@ export class ApiService {
         method: "POST"
       })
 
-      console.log(response)
+      
 
       restaurantData = await response.json()
 
       const restaurants: RestaurantData[] = []
-      console.log(restaurantData)
+      
       restaurantData.places.forEach((data: any) => {
-        console.log(data)
+        
         restaurants.push({
           name: data.displayName.text,
           address: data.formattedAddress, 
@@ -158,7 +158,7 @@ export class ApiService {
 
   public async saveFood(food:string) {
     try {
-      console.log(food)
+      
       const body = {
         food: food
       }
@@ -176,11 +176,11 @@ export class ApiService {
         const body = response.body;
 
         if (statusCode === 200) {
-          console.log('User check successful', body);
+          
           resolve(body)
         } else {
           console.warn(`Unexpected status code: ${statusCode}`);
-          console.log(body);
+          
         }
       },
       error: (error) => {
@@ -209,7 +209,7 @@ export class ApiService {
           resolve(body)
         } else {
           console.warn(`Unexpected status code: ${statusCode}`);
-          console.log(body);
+          
         }
       },
       error: (error) => {
@@ -228,7 +228,7 @@ export class ApiService {
         'foodName': foodName
       };
     return new Promise((resolve, reject) => {
-      console.log(foodName)
+      
       
       this.http.post(`${this.apiUrl}/delete-food`, JSON.stringify(body), {
       context: new HttpContext().set(USE_AUTH, true),
@@ -246,7 +246,7 @@ export class ApiService {
           resolve(body)
         } else {
           console.warn(`Unexpected status code: ${statusCode}`);
-          console.log(body);
+          
         }
       },
       error: (error) => {

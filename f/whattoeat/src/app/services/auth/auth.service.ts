@@ -27,7 +27,7 @@ export class AuthService {
         .subscribe({
           next: (response) => {
             
-            console.log(response);
+            
             this.localService.setItem('token', response.token);
             resolve({username: response.user.username});
 
@@ -53,7 +53,7 @@ export class AuthService {
         .subscribe({
           next: (response) => {
             
-            console.log(response);
+            
             resolve();
 
           },
@@ -76,12 +76,9 @@ export class AuthService {
         const body = response.body;
 
         if (statusCode === 200) {
-          console.log('User check successful', body.user.username);
+          
           resolve(body)
-        } else {
-          console.warn(`Unexpected status code: ${statusCode}`);
-          console.log(body);
-        }
+        } 
       },
       error: (error) => {
         reject(error);

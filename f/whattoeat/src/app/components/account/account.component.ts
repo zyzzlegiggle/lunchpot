@@ -59,7 +59,7 @@ export class AccountComponent  implements OnInit {
       this.isLoggedIn = true;
       await this.toastService.createToastSuccess("Log in successful");
     } catch (e:any) {
-      console.log("No account")
+      
     } finally {
       this.isLoggedInEvent.emit(this.isLoggedIn);
       this.initLoginLoading = false;
@@ -100,7 +100,7 @@ export class AccountComponent  implements OnInit {
       this.accountValidator.loginCheck(this.loginData);
       await this.authService.login(this.loginData)
       .then((data: any) => {
-        console.log(data);
+        
         this.username = data.username;
         this.isLoggedIn = true;
         this.isLoggedInEvent.emit(this.isLoggedIn);
@@ -131,7 +131,7 @@ export class AccountComponent  implements OnInit {
       this.accountValidator.signupCheck(this.signupData);
 
       // Here you would implement your signup logic
-      console.log('Signing up with:', this.signupData);
+      
       const response = await this.authService.signup(this.signupData);
       await this.toastService.createToastSuccess(`Sign up successful`);
       // Reset signup form
@@ -167,7 +167,7 @@ export class AccountComponent  implements OnInit {
 
   @Input() set savedFoodLoadingEvent(value: boolean) {
      this.savedFoodLoading = value;
-      console.log(this.savedFoodLoading);
+      
   }
 
 

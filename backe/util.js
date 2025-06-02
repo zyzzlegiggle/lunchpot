@@ -135,7 +135,7 @@ async function saveFood(email, food){
     const unionRes = await userRef.update({
       food: FieldValue.arrayUnion(food)
     })
-    console.log(unionRes);
+    
   } catch (e) {
     throw new Error(e.message)
   }

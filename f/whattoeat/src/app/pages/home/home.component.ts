@@ -53,15 +53,19 @@ export class HomeComponent  implements OnInit{
 
   public async onClick() {
     try{
-      console.log('main button clicked');
+      
       if (this.isLoading) return;
+      
+      this.resetState();
+
+      this.isLoading = true;
 
       if (this.location.country === '') this.location = await this.apiService.getLocation();
       
 
-      this.resetState();
+      
   
-      this.isLoading = true;
+      
       const data: any = await this.apiService.getFood(this.location.city, this.location.country)
       this.selectedFood = data
       this.foodSelected = true;
@@ -86,7 +90,7 @@ export class HomeComponent  implements OnInit{
 
       this.restaurants = await this.apiService.getRestaurant(this.selectedFood.name, this.location.latitude, this.location.longitude);
 
-      console.log(this.restaurants);
+      
       this.getRestaurant = true
     } catch (e: any) {
       console.error(e.message);
@@ -127,7 +131,7 @@ export class HomeComponent  implements OnInit{
 
   isLoggedInCheck(isLogin: boolean) {
     this.isLoggedIn = isLogin;
-    console.log(this.isLoggedIn);
+    
   }
 
   async savedFoodCheck(value: boolean) {
@@ -135,7 +139,7 @@ export class HomeComponent  implements OnInit{
       this.savedFoodLoading = true;
       let savedFood: any = await this.apiService.getSavedFood();
       savedFood = savedFood.food|| [];
-      console.log(savedFood)
+      
       if (savedFood.length >0) {
         savedFood.forEach((food: any) => {
           this.savedFoods.push({
@@ -144,17 +148,17 @@ export class HomeComponent  implements OnInit{
           })
           
         });
-        console.log(this.savedFoods)
+        
       }
       this.isModalOpen = true;
       this.savedFoodLoading = false;
-      console.log(this.savedFoodLoading);
+      
       }
   }
 
   // Add method to close modal
   closeModal() {
-    console.log('close modal');
+    
     this.isModalOpen = false;
   }
 
@@ -176,7 +180,7 @@ export class HomeComponent  implements OnInit{
   this.isDeletingFood = true;
   
   try {
-    console.log(this.foodToDelete.name)
+    
     // Replace this with your actual delete logic
     await this.apiService.deleteFood(this.foodToDelete.name);
 
@@ -198,7 +202,7 @@ export class HomeComponent  implements OnInit{
 }
 
   chooseSavedFood(food: FoodData) {
-    console.log( food)
+    
     this.resetState();
     this.selectedFood = food;
     this.foodSelected = true;
