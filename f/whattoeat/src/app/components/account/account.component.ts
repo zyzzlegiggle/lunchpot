@@ -32,6 +32,7 @@ export class AccountComponent  implements OnInit {
   isLoading = false;
   savedFoodLoading = false;
   initLoginLoading = false;
+  signoutLoading = false;
 
   constructor(
     private authService: AuthService, 
@@ -149,10 +150,15 @@ export class AccountComponent  implements OnInit {
 
   
 
-  logout() {
+  async logout() {
     // Implement logout logic
+    this.signoutLoading = true;
     this.localService.removeItem('token');
-    location.reload();
+    this.username = ''
+    this.isLoggedIn = false;
+    this.isLoggedInEvent.emit(this.isLoggedIn);
+    await this.toastService.createToastSuccess(`Sign out successful`);
+    this.signoutLoading = false;
   }
 
   @Input() set openLoginModalEvent(value: boolean) {

@@ -6,14 +6,14 @@ import { LocationData } from 'src/app/interfaces/location-data';
 import { RestaurantData } from 'src/app/interfaces/restaurant-data';
 import { ApiService } from 'src/app/services/api/api.service';
 import { closeOutline, locationOutline, mapOutline, refreshOutline, restaurantOutline, save, star, starHalf, starOutline } from 'ionicons/icons';
-import { IonAlert, IonContent, IonHeader, IonIcon } from '@ionic/angular/standalone';
+import { IonAlert, IonContent, IonFooter, IonHeader, IonIcon } from '@ionic/angular/standalone';
 import { AccountComponent } from 'src/app/components/account/account.component';
 import { ToastService } from 'src/app/services/toast/toast.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css'],
-  imports: [CommonModule, IonIcon, AccountComponent, IonContent],
+  imports: [CommonModule, IonIcon, AccountComponent, IonContent, IonFooter],
   
 })
 export class HomeComponent  implements OnInit{

@@ -27,6 +27,8 @@ app.use(cookieParser());
 
 // background cleanup (this run every 1 minute)
 setInterval(async () => {
+
+  console.log(eatSession);
   
   
   const now = Date.now();
@@ -44,7 +46,7 @@ setInterval(async () => {
   }
 }, 60 * 1000)
 
-const eatSession = new Map(); // key: username, value: { foodDeclined: [], lastRecommended: "", lastFetch: Date }
+let eatSession = new Map(); // key: username, value: { foodDeclined: [], lastRecommended: "", lastFetch: Date }
 
 const db = new firestore({
   projectId: process.env.GOOGLE_PROJECT_ID,
@@ -73,6 +75,7 @@ const verifyToken = (req, res, next) => {
       next();
     });
   } catch (e) {
+    console.error(error.message);
     throw new Error(e.message);
   }
 };
@@ -133,7 +136,7 @@ app.post('/', assignAnonymousId, getEmail, async (req, res) => {
         lastFetch: now
       });
     } else {
-      const session = eatSession.get(sessionKey);
+      let session = eatSession.get(sessionKey);
       if (!session.foodDeclined.includes(session.lastRecommended.toLowerCase())) {
         session.foodDeclined.push(session.lastRecommended.toLowerCase());
       }
@@ -184,7 +187,7 @@ app.post('/', assignAnonymousId, getEmail, async (req, res) => {
 
     
     const response = await run(model, mess);
-    const food = response.result.response.Food;
+    let food = response.result.response.Food;
     // only get 3 words from the output to make sure it only gets food
     if (food.trim().split(/\s+/).length > 3) {
       food = food.trim().split(/\s+/).slice(0, 3).join(' ');
@@ -199,6 +202,7 @@ app.post('/', assignAnonymousId, getEmail, async (req, res) => {
     }
     res.status(200).send(output)
   } catch (error) {
+    console.error(error.message)
     res.status(404).json({ message: error.message });
   }
     
@@ -253,6 +257,7 @@ app.post('/restaurants', async (req, res) => {
     
     res.send(result);
   } catch (error) {
+    console.error(error.message);
     res.status(404).json({ message: error.message });
   }
     
@@ -284,6 +289,7 @@ app.post('/register', async (req, res) => {
     
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: error.message});
   }
     
@@ -315,6 +321,7 @@ app.post('/login', async (req, res) => {
 
     res.status(200).json({ message: 'Login successful', token, user: { username: user.username, email } });
   } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: error.message});
   }
 });
@@ -332,6 +339,7 @@ app.get('/user', verifyToken, async (req, res) => {
     }
     res.status(400).json({ message: 'user not found' });
   } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -347,6 +355,7 @@ app.post('/save-food', verifyToken, async (req, res) => {
 
     res.status(200).json({message: 'Success'});
   } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -385,6 +394,7 @@ app.get('/saved-food', verifyToken, async (req, res) => {
 
     res.status(200).json(historyObject);
   } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: error.message });
   }
 });
@@ -402,6 +412,7 @@ app.post('/delete-food', verifyToken, async (req, res) => {
 
     res.status(200).json({message: 'Success'});
   } catch (error) {
+    console.error(error.message);
     res.status(500).json({ error: error.message });
   }
 });

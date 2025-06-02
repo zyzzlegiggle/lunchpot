@@ -26,12 +26,7 @@
           <!-- Dropdown menu -->
           <div  *ngIf="showUserMenu" class="user-dropdown">
             <ul class="dropdown-menu">
-              <!-- <li>
-                <a href="#" class="dropdown-item">
-                  <ion-icon name="person-outline"></ion-icon>
-                  <span>My Profile</span>
-                </a>
-              </li> -->
+
               <li>
                 <button (click)="savedFood()" class="dropdown-item">
                   <ion-icon name="bookmark-outline"></ion-icon>
@@ -40,17 +35,13 @@
 
                 </button>
               </li>
-              <!-- <li>
-                <a href="#" class="dropdown-item">
-                  <ion-icon name="settings-outline"></ion-icon>
-                  <span>Settings</span>
-                </a>
-              </li> -->
               <li class="divider"></li>
               <li>
                 <button class="dropdown-item logout-button" (click)="logout()">
                   <ion-icon name="log-out-outline"></ion-icon>
-                  <span>Sign Out</span>
+                  <span  *ngIf="!signoutLoading" >Sign Out</span>
+                  <span *ngIf="signoutLoading" class="spinner" style="border-top: 2px solid var(--primary-color) !important;"></span>
+
                 </button>
               </li>
             </ul>

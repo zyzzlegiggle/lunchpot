@@ -1,9 +1,9 @@
 <div class="page-container" >
   
   
-  <div class="content-container">
+  <div [ngClass]="{'content-container-restaurant': getRestaurant, 'content-container': !getRestaurant}">
     <div class="main-action-area">
-      <button class="food-button pulse-animation" (click)="onClick()" [class.selected]="foodSelected">
+      <button class="food-button pulse-animation" (click)="onClick()" [class.loading]="isLoading" [class.selected]="foodSelected">
         <span *ngIf="!isLoading && !foodSelected" class="initial-text">
           <ion-icon name="restaurant-outline"></ion-icon>
           <span>Find Food</span>
@@ -160,13 +160,12 @@
   </div>
 </div>
 
-<div class="app-footer">
+
+</div>
+
+<ion-footer class="ion-no-border">
+  <div class="app-footer">
     <div class="footer-content">
-      <div class="logo-section">
-        <h1>Lunchpot</h1>
-        <p class="tagline">Discover your next delicious meal</p>
-      </div>
-      
       <app-account 
       (isLoggedInEvent)="isLoggedInCheck($event)"
       [openLoginModalEvent]="openLoginModal"
@@ -174,6 +173,13 @@
       [savedFoodLoadingEvent]="savedFoodLoading"
       ></app-account>
 
+      <div class="logo-section">
+        <h1>Lunchpot</h1>
+        <p class="tagline">Discover your next delicious meal</p>
+      </div>
+      
+      
+
     </div>
   </div>
-</div>
+</ion-footer>
