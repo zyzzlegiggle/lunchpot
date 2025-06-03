@@ -20,3 +20,7 @@ docs for more detail on building and pushing.
 
 ### References
 * [Docker's Node.js guide](https://docs.docker.com/language/nodejs/)
+
+docker build -t gcr.io/steel-ridge-445708-p0/lunchpot-backend .
+docker push gcr.io/steel-ridge-445708-p0/lunchpot-backend
+gcloud run deploy lunchpot-backend  --image gcr.io/steel-ridge-445708-p0/lunchpot-backend --platform managed  --region us-east4 --allow-unauthenticated

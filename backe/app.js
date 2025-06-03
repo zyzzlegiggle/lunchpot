@@ -20,7 +20,7 @@ const isProd = process.env.NODE_ENV === 'production';
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: ['https://lunchpot', 'http://localhost:8100' ],
+  origin: ['https://lunchpot', 'http://localhost:8100'],
   credentials: true
 }));
 app.use(cookieParser());
@@ -75,7 +75,7 @@ const verifyToken = (req, res, next) => {
       next();
     });
   } catch (e) {
-    console.error(error.message);
+    console.error(e.message);
     throw new Error(e.message);
   }
 };
