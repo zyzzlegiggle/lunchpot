@@ -110,6 +110,7 @@
 
 .form-group {
     margin-bottom: 15px;
+    color:var(--text-color);
 }
 
 .form-group label {
@@ -161,7 +162,6 @@
 .auth-footer {
     padding: 15px 20px;
     text-align: center;
-    background: #f9f9f9;
     color: var(--text-light);
     font-size: 0.9rem;
 }

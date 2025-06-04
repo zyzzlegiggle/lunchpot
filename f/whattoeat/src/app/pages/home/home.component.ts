@@ -93,8 +93,7 @@ export class HomeComponent  implements OnInit{
       
       this.getRestaurant = true
     } catch (e: any) {
-      console.error(e.message);
-      alert('Could not find restaurants. Please try again later.');
+      this.toastService.createToastError('Could not find restaurants. Please try again later.')
     } finally {
       this.isLoading = false;
     }
