@@ -11,7 +11,7 @@
         
         <div *ngIf="isLoading" class="loading-container">
           <div class="loading-spinner"></div>
-          <span class="loading-text">Finding deliciousness...</span>
+          <span class="loading-text">{{loadingMessage ? loadingMessage : 'Finding deliciousness...'}}</span>
         </div>
         
         <div *ngIf="foodSelected && !isLoading" class="food-content">

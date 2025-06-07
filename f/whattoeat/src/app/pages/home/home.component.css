@@ -548,7 +548,7 @@ h1 {
 }
 
 .modal-content {
-  background: var(--glass-bg);
+  background: var(--card-background);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);

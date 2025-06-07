@@ -16,11 +16,12 @@ const cookieParser = require('cookie-parser');
 
 const isProd = process.env.NODE_ENV === 'production';
 
+
 // config
 app.use(express.json());
 app.use(helmet());
 app.use(cors({
-  origin: ['https://lunchpot', 'http://localhost:8100'],
+  origin: [process.env.APP_URL, process.env.WEB_URL],
   credentials: true
 }));
 app.use(cookieParser());

@@ -37,6 +37,7 @@ export class HomeComponent  implements OnInit{
   isDeleteModalOpen = false;
   foodToDelete: FoodData ={name:'', imageLink:''};
   isDeletingFood = false;
+  loadingMessage = '';
 
 
   constructor(
@@ -87,6 +88,7 @@ export class HomeComponent  implements OnInit{
       if (this.location.country === '') this.location = await this.apiService.getLocation();
 
       this.isLoading = true;
+      this.loadingMessage = 'Finding restaurants...';
 
       this.restaurants = await this.apiService.getRestaurant(this.selectedFood.name, this.location.latitude, this.location.longitude);
 
@@ -96,6 +98,7 @@ export class HomeComponent  implements OnInit{
       this.toastService.createToastError('Could not find restaurants. Please try again later.')
     } finally {
       this.isLoading = false;
+      this.loadingMessage = '';
     }
 
 
@@ -110,8 +113,18 @@ export class HomeComponent  implements OnInit{
         });
         return; // open login modal
       }
-      const name = this.selectedFood.name;
       this.isLoading = true
+      this.loadingMessage = 'Saving your food...'
+      let savedFood: any = await this.apiService.getSavedFood();
+      savedFood = savedFood.food|| [];
+      if (savedFood.length >= 10) {
+        await this.toastService.createToastError("You can only have up to 10 foods saved");
+        this.isLoading = false;
+        this.loadingMessage = ''
+        return;
+      }
+      const name = this.selectedFood.name;
+      
       await this.apiService.saveFood(name)
       .then (async _ => {
         await this.toastService.createToastSuccess(`${name} is saved`);
@@ -121,6 +134,9 @@ export class HomeComponent  implements OnInit{
     } catch (e: any) {
       console.error(e.message)
       await this.toastService.createToastError("Failed to save food, please try again.");
+    } finally { 
+      this.isLoading = false;
+      this.loadingMessage = '';
     }
   }
 
@@ -159,6 +175,7 @@ export class HomeComponent  implements OnInit{
   closeModal() {
     
     this.isModalOpen = false;
+    this.savedFoods = [];
   }
 
   confirmDelete(food: any, event: Event) {
@@ -213,6 +230,7 @@ export class HomeComponent  implements OnInit{
     this.selectedFood = { name: '', imageLink: '' };
     this.getRestaurant = false;
     this.isLoading = false
+    this.loadingMessage = '';
   }
 
 
