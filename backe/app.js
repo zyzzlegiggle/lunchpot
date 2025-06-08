@@ -36,11 +36,11 @@ setInterval(async () => {
   for (const [email, session] of eatSession.entries()) {
     if (now - session.lastFetch > 10 * 60 * 1000) {
       // Check if the email already exists
-      const userRef = db.collection('whattoeat_users').doc(email)
-      const snapshot = await userRef.get();
-      if (snapshot.exists) {
-        saveFood(email, eatSession.get(email).lastRecommended)
-      }
+      // const userRef = db.collection('whattoeat_users').doc(email)
+      // const snapshot = await userRef.get();
+      // if (snapshot.exists) {
+      //   saveFood(email, eatSession.get(email).lastRecommended)
+      // }
       eatSession.delete(email); // remove if there is no activity after 10 minutes
       
     }
@@ -139,6 +139,7 @@ app.post('/', assignAnonymousId, getEmail, async (req, res) => {
     } else {
       let session = eatSession.get(sessionKey);
       if (!session.foodDeclined.includes(session.lastRecommended.toLowerCase())) {
+        if (session.foodDeclined.length >=20) session.foodDeclined.shift();
         session.foodDeclined.push(session.lastRecommended.toLowerCase());
       }
       session.lastFetch = now;
