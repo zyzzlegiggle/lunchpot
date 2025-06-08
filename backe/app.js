@@ -211,7 +211,7 @@ app.post('/', assignAnonymousId, getEmail, async (req, res) => {
 })
 
 
-app.post('/restaurants', async (req, res) => {
+app.post('/restaurants', verifyToken, async (req, res) => {
   try {
     const apiKey = process.env.GOOGLE_API_KEY_PLACES;
     const latitude = req.body.location.latitude;

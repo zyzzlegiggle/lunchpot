@@ -84,6 +84,13 @@ export class HomeComponent  implements OnInit{
       if (!this.foodSelected || !this.selectedFood.name || this.getRestaurant) {
       return;
       }
+      if (!this.isLoggedIn) {
+        this.openLoginModal = true;
+        setTimeout(() => {
+          this.openLoginModal = false;
+        });
+        return; // open login modal
+      }
 
       if (this.location.country === '') this.location = await this.apiService.getLocation();
 
