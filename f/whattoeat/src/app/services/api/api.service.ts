@@ -116,17 +116,23 @@ export class ApiService {
         food: food
       };
       let restaurantData = {places: []};
-      const response = await fetch(`${this.apiUrl}/restaurants`, {
-        headers: {
+
+      return new Promise<RestaurantData[]>((resolve, reject) => {
+      this.http.post(`${this.apiUrl}/restaurants`, JSON.stringify(body), {
+      context: new HttpContext().set(USE_AUTH, true),
+      observe: 'response',
+      headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(body),
-        method: "POST"
-      })
+      withCredentials: true
+    }).subscribe({
+      next: (response: HttpResponse<any>) => {
+        const statusCode = response.status;
+        const body = response.body;
 
-      
-
-      restaurantData = await response.json()
+        if (statusCode === 200) {
+          
+      restaurantData = body;
 
       const restaurants: RestaurantData[] = []
       
@@ -150,10 +156,24 @@ export class ApiService {
           }
         });
       })
-      return restaurants;
+      resolve(restaurants);
+        } else {
+          console.warn(`Unexpected status code: ${statusCode}`);
+          
+        }
+      },
+      error: (error) => {
+        reject(error);
+      }
+    });
+    })
+
+      
+
     } catch (e: any) {
       throw new Error(e.message)
     }
+    
   }
 
   public async saveFood(food:string) {
