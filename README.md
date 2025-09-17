@@ -5,10 +5,20 @@
 Feeling hungry but can’t decide what to eat? 😋
 **LunchPot** is here to help! With just a tap, it suggests tasty dishes, finds nearby restaurants, and even lets you save your favorites for future personalized recommendations.
 
+---
+
+## 🌐 Live Demo
+
+👉 Try it out here: **[LunchPot Live](https://lunchpot.site)** ✨
+
+---
+
 ## 🚀 Project Structure
 
 * **📱 app/** → Built with **Angular**, **Ionic**, and **Capacitor**.
 * **🌐 server/** → Powered by **Express.js** + **LangChain (Gemini)** + **Google Places API** + **Google Search API** for food photos.
+
+---
 
 ## ✨ Features
 
@@ -16,6 +26,8 @@ Feeling hungry but can’t decide what to eat? 😋
 * 📍 **Nearby restaurant finder** using Google Places.
 * ❤️ **Save foods you love** for personalized suggestions later.
 * 🖼️ **Food photos** fetched automatically with Google Search.
+
+---
 
 ## 🛠️ Tech Stack
 
@@ -34,6 +46,8 @@ Feeling hungry but can’t decide what to eat? 😋
 * Google Search API
 * Deployed on **Google Cloud Run** ☁️
 
+---
+
 ## 🏃 Running Locally
 
 ### 1️⃣ Clone the repo
@@ -51,7 +65,7 @@ npm install
 npm run dev
 ```
 
-By default, the server will run on `http://localhost:8080`.
+Server runs on: `http://localhost:8080`
 
 ### 3️⃣ Run the app
 
@@ -61,20 +75,31 @@ npm install
 ionic serve
 ```
 
-The app will be available at `http://localhost:8100`.
+App runs on: `http://localhost:8100`
+
+---
 
 ## 🌍 Deployment
 
-* **Server** → Deployed to **Google Cloud Run**
+* **Server** → Google Cloud Run
 
   ```bash
   gcloud run deploy
   ```
-* **App** → Deployed to **Firebase Hosting**
+* **App** → Firebase Hosting
 
   ```bash
   firebase deploy
   ```
+
+---
+
+## 📲 Download the App
+
+Prefer using it on your device?
+👉 Get the latest build from **[GitHub Releases](https://github.com/your-username/lunchpot/releases)**
+
+---
 
 ## 🎉 Why LunchPot?
 
