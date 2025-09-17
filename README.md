@@ -51,7 +51,7 @@ npm install
 npm run dev
 ```
 
-By default, the server will run on `http://localhost:3000`.
+By default, the server will run on `http://localhost:8080`.
 
 ### 3️⃣ Run the app
 
