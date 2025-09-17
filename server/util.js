@@ -1,77 +1,120 @@
 const { FieldValue } = require('@google-cloud/firestore');
 const firestore = require('@google-cloud/firestore');
 let dotenv = require('dotenv').config()
-async function run(model, input) {
-  try {
-    const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/ai/run/${model}`,
-    {
-      
-      headers: { 
-        Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY_WORKERS}`,
-        "Content-Type": "application/json"
-      },
-      method: "POST",
-      body: JSON.stringify(input),
-    }
-  );
-    const result = await response.json();
-    return result;
-  } catch (e) {
-    res.status(404).json({ message: error.message });
-  }
-  
-}
+const { ChatGoogleGenerativeAI } = require("@langchain/google-genai");
+const { JsonOutputParser } = require("@langchain/core/output_parsers");
+const { ChatPromptTemplate } = require("@langchain/core/prompts");
 
-async function insertVector(indexName, vectors) {
+async function run(query, foodHistory = [], foodDeclined = []) {
   try {
-    // make ndjson format
-    const input = vectors.map(v => JSON.stringify(v)).join('\n');
-    const response = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${process.env.CLOUDFLARE_ACCOUNT_ID}/vectorize/v2/indexes/${indexName}/insert`,
-    {
-      headers: { 
-        Authorization: `Bearer ${process.env.CLOUDFLARE_API_KEY_VECTORIZE}` ,
-        "Content-Type": "application/x-ndjson"
-      },
-      method: "POST",
-      body: input
-    }
-  );
-    const result = await response.json();
-    return result;
+    // Define schema as instructions
+    const formatInstructions = `
+Respond only in valid JSON. The JSON object you return should match the following schema:
+{
+  "Location": "string",
+  "Food": "string"
+}
+`;
+
+    // Parser
+    const parser = new JsonOutputParser();
+
+    // Prompt template
+    const prompt = await ChatPromptTemplate.fromMessages([
+      [
+        "system",
+        "Recommend 1 food in a country to the user. Consider their food history and declined foods. Do not suggest declined foods.\n{format_instructions}",
+      ],
+      [
+        "human",
+        "User food history: {foodHistory}\nDeclined foods: {foodDeclined}\nQuery: {query}",
+      ],
+    ]).partial({
+      format_instructions: formatInstructions,
+    });
+
+    // Gemini model
+    const model = new ChatGoogleGenerativeAI({
+      model: "gemini-2.5-flash", 
+      temperature: 0.8
+    });
+
+    // Chain prompt → model → parser
+    const chain = prompt.pipe(model).pipe(parser);
+
+    // Execute
+    const response = await chain.invoke({
+      query,
+      foodHistory: foodHistory.length ? foodHistory.join(", ") : "None",
+      foodDeclined: foodDeclined.length ? foodDeclined.join(", ") : "None",
+    });
+
+    return response; // will be { Location: "...", Food: "..." }
   } catch (e) {
-    res.status(404).json({ message: error.message });
+    throw new Error(e.message);
   }
 }
 
 async function getFoodHistory(email) {
   const userRef = db.collection('whattoeat_users').doc(email);
   const snapshot = await userRef.get();
-  if (!snapshot.exists) {
-      return ["None"]
-  }
+  if (!snapshot.exists) return [];
   const foodHistory = snapshot.data().food;
-  return  foodHistory || ["None"];
+  return Array.isArray(foodHistory) ? foodHistory : [];
+    
 
 }
 
-async function getFoodImage(food){
+async function getFoodImage(food) {
   try {
     const apiKey = process.env.GOOGLE_API_KEY_CUSTOMSEARCH;
-    const engineID = process.env.GOOGLE_ENGINE_ID
-    const response = await fetch(
-    `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${engineID}&q=${food}&searchType=image`,
-    {
-      method: "GET"
+    const engineID = process.env.GOOGLE_ENGINE_ID;
+    if (!apiKey || !engineID) {
+      console.warn("Custom Search credentials missing. Returning fallback image.");
+      return process.env.IMAGE_FALLBACK_URL || null;
     }
-  );
+
+    const q = encodeURIComponent(food);
+    const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${engineID}&q=${q}&searchType=image&num=10`;
+
+    const response = await fetch(url, { method: "GET" });
+    if (!response.ok) {
+      console.warn(`CustomSearch returned HTTP ${response.status}`);
+      return process.env.IMAGE_FALLBACK_URL || null;
+    }
+
     const result = await response.json();
-    return result.items[Math.floor(Math.random() * result.items.length - 1)].link;
+
+    // Validate items array
+    if (!result || !Array.isArray(result.items) || result.items.length === 0) {
+      console.warn(`No images returned for query "${food}"`);
+      return process.env.IMAGE_FALLBACK_URL || null;
+    }
+
+    // pick a valid random item
+    const idx = Math.floor(Math.random() * result.items.length); // 0 .. length-1
+    const chosen = result.items[idx];
+
+    // defensive checks for link property
+    if (chosen && (chosen.link || chosen.image?.thumbnailLink || chosen.displayLink)) {
+      return chosen.link || chosen.image?.thumbnailLink || chosen.displayLink;
+    }
+
+    // fallback scanning for first available link-like field
+    for (const it of result.items) {
+      if (it && (it.link || it.image?.thumbnailLink || it.displayLink)) {
+        return it.link || it.image?.thumbnailLink || it.displayLink;
+      }
+    }
+
+    // final fallback
+    return process.env.IMAGE_FALLBACK_URL || null;
   } catch (e) {
-    throw new Error(e.message);
+    console.error("getFoodImage error:", e && e.message ? e.message : e);
+    return process.env.IMAGE_FALLBACK_URL || null;
   }
 }
+
 
 function validateEmail(email) {
   if(email.toLowerCase().match(/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/)){
@@ -143,7 +186,6 @@ async function saveFood(email, food){
 
 module.exports = {
   run,
-  insertVector, 
   getFoodHistory, 
   getFoodImage, 
   validateLogin, 

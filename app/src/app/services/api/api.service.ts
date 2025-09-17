@@ -8,6 +8,7 @@ import { environment } from 'src/environments/environment';
 import { USE_AUTH } from '../auth/auth.interceptor';
 import { Geolocation } from '@capacitor/geolocation';
 import { LocalStorageService } from '../local-storage/local-storage.service';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -73,38 +74,70 @@ export class ApiService {
 
   public async getLocation(): Promise<LocationData> {
     try {
-      
-      let countryData = {country_name : '', city: ''};
-      this.http.get(environment.countryApi).subscribe({
-        next: (data: any) => {
-          countryData = data;
-        }
-      })
-      
-      const geolocationData = await Geolocation.getCurrentPosition();
-      
-      return {
-        country: countryData.country_name,
-        city: countryData.city,
-        latitude: geolocationData.coords.latitude.toString(),
-        longitude: geolocationData.coords.longitude.toString()
+      // Start the country API request immediately
+      const countryReq = firstValueFrom(
+        this.http.get(environment.countryApi)
+      ).catch((err) => {
+        // swallow country API errors and return a sensible default
+        console.warn('country API failed:', err);
+        return { country_name: '', city: '' };
+      });
 
-      }
+      // Start geolocation retrieval
+      const geolocationPromise = this.getCurrentPosition();
+
+      // Await both in parallel for better performance
+      const [countryData, geolocationData] = await Promise.all([
+        countryReq,
+        geolocationPromise,
+      ]);
+
+      // Normalize types and guard against missing fields
+      const countryName = (countryData as any)?.country_name ?? '';
+      const cityName = (countryData as any)?.city ?? '';
+
+      return {
+        country: countryName,
+        city: cityName,
+        latitude: geolocationData.coords.latitude.toString(),
+        longitude: geolocationData.coords.longitude.toString(),
+      };
     } catch (e: any) {
-      throw new Error("Turn on your location services")
+      // Provide a clear message for the caller
+      console.error('getLocation error:', e);
+      throw new Error('Unable to get location. Please enable location services and grant permission.');
     }
   }
 
-  // uses web API (doesnt work in capacitor)
   private async getCurrentPosition(): Promise<GeolocationPosition> {
-    return new Promise((resolve, reject) => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(resolve, reject);
-      } else {
-        reject(new Error('Geolocation not supported'));
+      // Try Capacitor Geolocation first (works on mobile)
+      try {
+        if ((Geolocation as any) && typeof (Geolocation as any).getCurrentPosition === 'function') {
+          // Capacitor returns an object compatible with GeolocationPosition-like shape,
+          // but to be safe we cast it.
+          const capPos = await Geolocation.getCurrentPosition();
+          // capPos has coords.latitude / coords.longitude etc.
+          return capPos as unknown as GeolocationPosition;
+        }
+      } catch (err) {
+        console.warn('Capacitor Geolocation failed or permission denied:', err);
+        // continue to try browser fallback
       }
-    });
-  }
+
+      // Browser fallback
+      return await new Promise<GeolocationPosition>((resolve, reject) => {
+        if (navigator && navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => resolve(pos),
+            (err) => reject(err),
+            // options: try to be responsive but allow cached position
+            { enableHighAccuracy: false, maximumAge: 60_000, timeout: 10_000 }
+          );
+        } else {
+          reject(new Error('Geolocation not supported by this device/browser'));
+        }
+      });
+    }
 
   public async getRestaurant(food:string, latitude:string, longitude:string) {
     try {
