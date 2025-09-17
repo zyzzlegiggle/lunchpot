@@ -97,7 +97,7 @@ App runs on: `http://localhost:8100`
 ## 📲 Download the App
 
 Prefer using it on your device?
-👉 Get the latest build from **[GitHub Releases](https://github.com/your-username/lunchpot/releases)**
+👉 Get the latest build from **[GitHub Releases](https://github.com/zyzzlegiggle/lunchpot/releases)**
 
 ---
 
