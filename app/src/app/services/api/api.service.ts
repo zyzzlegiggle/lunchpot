@@ -62,7 +62,7 @@ export class ApiService {
           
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         reject(error);
       }
     });
@@ -195,7 +195,7 @@ export class ApiService {
           
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         reject(error);
       }
     });
@@ -236,7 +236,7 @@ export class ApiService {
           
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         reject(error);
       }
     });
@@ -265,7 +265,7 @@ export class ApiService {
           
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         reject(error);
       }
     });
