@@ -70,7 +70,6 @@ ionic serve
 
 App runs on: `http://localhost:8100`
 
----
 
 ## Deployment
 
@@ -86,11 +85,8 @@ gcloud run deploy
 firebase deploy
 ```
 
----
-
 ## Download
 
 You can download the latest build from **[GitHub Releases](https://github.com/zyzzlegiggle/lunchpot/releases)**.
 
----
 
