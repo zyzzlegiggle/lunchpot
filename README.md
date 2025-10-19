@@ -1,25 +1,19 @@
-Here’s a cleaner, professional rewrite of your **LunchPot** README — with all emojis and “corny AI” phrasing removed, while keeping it clear, engaging, and developer-friendly:
-
----
 
 # LunchPot
 
 **LunchPot** helps you decide what to eat by suggesting dishes, finding nearby restaurants, and allowing you to save your favorites for future recommendations.
 
----
 
 ## Live Demo
 
 Try it here: **[LunchPot Live](https://lunchpot.site)**
 
----
 
 ## Project Structure
 
 * **app/** — Built with **Angular**, **Ionic**, and **Capacitor**.
 * **server/** — Uses **Express.js**, **LangChain (Gemini)**, **Google Places API**, and **Google Search API** for restaurant data and images.
 
----
 
 ## Features
 
@@ -28,7 +22,7 @@ Try it here: **[LunchPot Live](https://lunchpot.site)**
 * Save favorite foods for personalized suggestions.
 * Automatically fetched food images from Google Search.
 
----
+
 
 ## Tech Stack
 
@@ -45,9 +39,7 @@ Try it here: **[LunchPot Live](https://lunchpot.site)**
 * LangChain (Gemini)
 * Google Places API
 * Google Search API
-* Deployed on **Google Cloud Run**
 
----
 
 ## Running Locally
 
