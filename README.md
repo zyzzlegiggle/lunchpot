@@ -1,42 +1,43 @@
-
-
-# 🍴 LunchPot
-
-Feeling hungry but can’t decide what to eat? 😋
-**LunchPot** is here to help! With just a tap, it suggests tasty dishes, finds nearby restaurants, and even lets you save your favorites for future personalized recommendations.
+Here’s a cleaner, professional rewrite of your **LunchPot** README — with all emojis and “corny AI” phrasing removed, while keeping it clear, engaging, and developer-friendly:
 
 ---
 
-## 🌐 Live Demo
+# LunchPot
 
-👉 Try it out here: **[LunchPot Live](https://lunchpot.site)** ✨
-
----
-
-## 🚀 Project Structure
-
-* **📱 app/** → Built with **Angular**, **Ionic**, and **Capacitor**.
-* **🌐 server/** → Powered by **Express.js** + **LangChain (Gemini)** + **Google Places API** + **Google Search API** for food photos.
+**LunchPot** helps you decide what to eat by suggesting dishes, finding nearby restaurants, and allowing you to save your favorites for future recommendations.
 
 ---
 
-## ✨ Features
+## Live Demo
 
-* 🎲 **Random food recommendations** when you just can’t decide.
-* 📍 **Nearby restaurant finder** using Google Places.
-* ❤️ **Save foods you love** for personalized suggestions later.
-* 🖼️ **Food photos** fetched automatically with Google Search.
+Try it here: **[LunchPot Live](https://lunchpot.site)**
 
 ---
 
-## 🛠️ Tech Stack
+## Project Structure
+
+* **app/** — Built with **Angular**, **Ionic**, and **Capacitor**.
+* **server/** — Uses **Express.js**, **LangChain (Gemini)**, **Google Places API**, and **Google Search API** for restaurant data and images.
+
+---
+
+## Features
+
+* Random food recommendations for quick decisions.
+* Nearby restaurant finder using Google Places.
+* Save favorite foods for personalized suggestions.
+* Automatically fetched food images from Google Search.
+
+---
+
+## Tech Stack
 
 ### App (Frontend)
 
 * Angular
 * Ionic
 * Capacitor
-* Firebase Hosting 🚀
+* Firebase Hosting
 
 ### Server (Backend)
 
@@ -44,20 +45,20 @@ Feeling hungry but can’t decide what to eat? 😋
 * LangChain (Gemini)
 * Google Places API
 * Google Search API
-* Deployed on **Google Cloud Run** ☁️
+* Deployed on **Google Cloud Run**
 
 ---
 
-## 🏃 Running Locally
+## Running Locally
 
-### 1️⃣ Clone the repo
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/your-username/lunchpot.git
 cd lunchpot
 ```
 
-### 2️⃣ Run the server
+### 2. Run the server
 
 ```bash
 cd server
@@ -67,7 +68,7 @@ npm run dev
 
 Server runs on: `http://localhost:8080`
 
-### 3️⃣ Run the app
+### 3. Run the app
 
 ```bash
 cd ../app
@@ -79,35 +80,25 @@ App runs on: `http://localhost:8100`
 
 ---
 
-## 🌍 Deployment
+## Deployment
 
-* **Server** → Google Cloud Run
+**Server** — Google Cloud Run
 
-  ```bash
-  gcloud run deploy
-  ```
-* **App** → Firebase Hosting
+```bash
+gcloud run deploy
+```
 
-  ```bash
-  firebase deploy
-  ```
+**App** — Firebase Hosting
 
----
-
-## 📲 Download the App
-
-Prefer using it on your device?
-👉 Get the latest build from **[GitHub Releases](https://github.com/zyzzlegiggle/lunchpot/releases)**
+```bash
+firebase deploy
+```
 
 ---
 
-## 🎉 Why LunchPot?
+## Download
 
-Because choosing lunch should be fun, not stressful! 😎
-Whether you’re craving something new or sticking to your go-to meals, **LunchPot’s got your back.**
-
----
-
-🍔✨ *Made with love, food cravings, and a dash of AI.*
+You can download the latest build from **[GitHub Releases](https://github.com/zyzzlegiggle/lunchpot/releases)**.
 
 ---
+
